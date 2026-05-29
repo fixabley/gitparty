@@ -1,0 +1,67 @@
+import {
+  CircleDot,
+  GitCommitHorizontal,
+  GitPullRequest,
+  MessageSquare,
+} from "lucide-react";
+import Link from "next/link";
+
+import { Badge } from "@/components/ui/badge";
+import type { StudyActivityCard } from "@/lib/study/mock-data";
+
+type ActivityCardProps = {
+  activity: StudyActivityCard;
+  showParty?: boolean;
+};
+
+function ActivityIcon({ type }: { type: string }) {
+  if (type === "PULL_REQUEST") {
+    return <GitPullRequest className="size-4 text-[#8250df]" />;
+  }
+
+  if (type === "ISSUE") {
+    return <CircleDot className="size-4 text-[#1f883d]" />;
+  }
+
+  if (type.includes("COMMENT")) {
+    return <MessageSquare className="size-4 text-[#0969da]" />;
+  }
+
+  return <GitCommitHorizontal className="size-4 text-[#57606a]" />;
+}
+
+export function ActivityCard({ activity, showParty = true }: ActivityCardProps) {
+  return (
+    <article
+      id={activity.id}
+      className="rounded-md border border-[#d0d7de] bg-white"
+    >
+      <div className="flex items-start gap-3 p-4">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-[#d0d7de] bg-[#f6f8fa]">
+          <ActivityIcon type={activity.type} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="font-semibold">{activity.actorName}</span>
+            <span className="text-[#57606a]">{activity.summary}</span>
+            <Badge variant="outline" className="border-[#d0d7de] bg-white">
+              {activity.type}
+            </Badge>
+          </div>
+          <Link
+            href={activity.platformUrl}
+            className="mt-1 block truncate text-sm font-semibold text-[#0969da] hover:underline"
+          >
+            {activity.title}
+          </Link>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[#57606a]">
+            {showParty ? <span>{activity.partyTitle}</span> : null}
+            {activity.repository ? <span>{activity.repository}</span> : null}
+            <span>{activity.createdLabel}</span>
+            <span>{activity.commentCount} comments</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
