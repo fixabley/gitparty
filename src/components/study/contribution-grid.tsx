@@ -1,3 +1,4 @@
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { StudyContributionDay } from "@/lib/study/mock-data";
 
 type ContributionGridProps = {
@@ -28,7 +29,8 @@ export function ContributionGrid({ days }: ContributionGridProps) {
   return (
     <div className="grid gap-2">
       <div className="text-sm font-semibold">Contributions</div>
-      <div className="grid grid-flow-col grid-rows-7 gap-1 overflow-x-auto rounded-md border border-[#d0d7de] bg-white p-3">
+      <ScrollArea className="rounded-md border border-[#d0d7de] bg-white p-3">
+        <div className="grid grid-flow-col grid-rows-7 gap-1">
         {days.map((day, index) => (
           <a
             key={`${day.date}-${index}`}
@@ -37,7 +39,8 @@ export function ContributionGrid({ days }: ContributionGridProps) {
             className={`size-3 rounded-[2px] ${contributionClass(day.count)}`}
           />
         ))}
-      </div>
+        </div>
+      </ScrollArea>
     </div>
   );
 }

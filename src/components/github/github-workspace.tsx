@@ -22,6 +22,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MarkdownRichEditor } from "@/components/github/markdown-rich-editor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   buildLineReference,
   parseLineReference,
@@ -102,7 +113,7 @@ type RenderDiffLineParams = {
 const inputClass =
   "h-8 w-full rounded-md border border-[#d0d7de] bg-white px-2.5 text-sm text-[#24292f] outline-none transition placeholder:text-[#57606a] focus-visible:border-[#0969da] focus-visible:ring-2 focus-visible:ring-[#0969da]/20";
 const labelClass = "grid gap-1.5 text-sm font-medium text-[#24292f]";
-const panelClass = "rounded-md border border-[#d0d7de] bg-white";
+const panelClass = "gap-0 rounded-md border-[#d0d7de] bg-white py-0";
 const panelHeaderClass =
   "flex items-center justify-between gap-3 border-b border-[#d0d7de] bg-[#f6f8fa] px-4 py-3";
 
@@ -586,7 +597,7 @@ export function GitHubWorkspace() {
   return (
     <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-6 px-4 py-6 text-[#24292f] lg:grid-cols-[280px_minmax(0,1fr)_320px]">
       <aside className="grid gap-4 lg:sticky lg:top-[72px] lg:self-start">
-        <section className={panelClass}>
+        <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div className="flex items-center gap-2 text-sm font-semibold">
               <BookOpen className="size-4 text-[#57606a]" />
@@ -597,33 +608,34 @@ export function GitHubWorkspace() {
             </Badge>
           </div>
           <div className="grid gap-3 p-3">
-            <label className={labelClass}>
+            <Label className={labelClass}>
               Add repository
-              <input
+              <Input
                 className={inputClass}
                 placeholder="owner/repo"
                 value={repositoryInput}
                 onChange={(event) => setRepositoryInput(event.target.value)}
               />
-            </label>
-            <label className={labelClass}>
+            </Label>
+            <Label className={labelClass}>
               Webhook URL
-              <input
+              <Input
                 className={inputClass}
                 placeholder="https://app.example.com/api/github/webhook"
                 value={webhookUrl}
                 onChange={(event) => setWebhookUrl(event.target.value)}
               />
-            </label>
+            </Label>
             <div className="flex items-center justify-between gap-2">
-              <label className="flex h-8 items-center gap-2 text-sm text-[#57606a]">
-                <input
-                  type="checkbox"
+              <Label className="flex h-8 items-center gap-2 text-sm text-[#57606a]">
+                <Checkbox
                   checked={installWebhook}
-                  onChange={(event) => setInstallWebhook(event.target.checked)}
+                  onCheckedChange={(checked) =>
+                    setInstallWebhook(checked === true)
+                  }
                 />
                 Install webhook
-              </label>
+              </Label>
               <Button
                 type="button"
                 className="bg-[#1f883d] text-white hover:bg-[#1a7f37]"
@@ -670,9 +682,9 @@ export function GitHubWorkspace() {
               </div>
             )}
           </div>
-        </section>
+        </Card>
 
-        <section className={panelClass}>
+        <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div className="flex items-center gap-2 text-sm font-semibold">
               <Webhook className="size-4 text-[#57606a]" />
@@ -688,11 +700,11 @@ export function GitHubWorkspace() {
               Signature verification enabled
             </div>
           </div>
-        </section>
+        </Card>
       </aside>
 
       <main className="grid min-w-0 gap-4">
-        <section className={panelClass}>
+        <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div>
               <div className="text-sm font-semibold">Home feed</div>
@@ -766,9 +778,9 @@ export function GitHubWorkspace() {
               </div>
             )}
           </div>
-        </section>
+        </Card>
 
-        <section className={panelClass}>
+        <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div>
               <div className="flex items-center gap-2 text-sm font-semibold">
@@ -801,29 +813,33 @@ export function GitHubWorkspace() {
 
           <div className="grid gap-4 p-4">
             <div className="grid gap-3 md:grid-cols-[1fr_120px]">
-              <label className={labelClass}>
+              <Label className={labelClass}>
                 Repository
-                <select
-                  className={inputClass}
+                <Select
                   value={selectedRepository?.id ?? ""}
-                  onChange={(event) => setSelectedRepositoryId(event.target.value)}
+                  onValueChange={setSelectedRepositoryId}
                 >
-                  {repositoriesQuery.data?.map((repository) => (
-                    <option key={repository.id} value={repository.id}>
-                      {repository.fullName}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className={labelClass}>
+                  <SelectTrigger className={inputClass}>
+                    <SelectValue placeholder="Repository" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {repositoriesQuery.data?.map((repository) => (
+                      <SelectItem key={repository.id} value={repository.id}>
+                        {repository.fullName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Label>
+              <Label className={labelClass}>
                 PR number
-                <input
+                <Input
                   className={inputClass}
                   value={pullNumber}
                   onChange={(event) => setPullNumber(event.target.value)}
                   placeholder="1"
                 />
-              </label>
+              </Label>
             </div>
 
             {pullRequestQuery.data ? (
@@ -884,9 +900,9 @@ export function GitHubWorkspace() {
               <div className="grid min-w-0 gap-4">
                 <div className="grid gap-3 rounded-md border border-[#d0d7de] bg-[#f6f8fa] p-3">
                   <div className="grid gap-3 md:grid-cols-[1fr_1fr]">
-                    <label className={labelClass}>
+                    <Label className={labelClass}>
                       Line reference
-                      <input
+                      <Input
                         className={inputClass}
                         value={selectionReference || manualReference}
                         onChange={(event) => {
@@ -895,7 +911,7 @@ export function GitHubWorkspace() {
                         }}
                         placeholder="src/app/page.tsx:L10-L18"
                       />
-                    </label>
+                    </Label>
                     <div className={labelClass}>
                       Review comment
                       <MarkdownRichEditor
@@ -1006,11 +1022,11 @@ export function GitHubWorkspace() {
               </div>
             </div>
           </div>
-        </section>
+        </Card>
       </main>
 
       <aside className="grid gap-4 lg:sticky lg:top-[72px] lg:self-start">
-        <section className={panelClass}>
+        <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div className="flex items-center gap-2 text-sm font-semibold">
               <MessageSquarePlus className="size-4 text-[#57606a]" />
@@ -1022,123 +1038,129 @@ export function GitHubWorkspace() {
           </div>
           <div className="grid gap-3 p-3">
             <div className="grid gap-3">
-              <label className={labelClass}>
+              <Label className={labelClass}>
                 Type
-                <select
-                  className={inputClass}
+                <Select
                   value={actionType}
-                  onChange={(event) =>
-                    setActionType(event.target.value as PublishGitHubActionType)
+                  onValueChange={(value) =>
+                    setActionType(value as PublishGitHubActionType)
                   }
                 >
-                  <option value="ISSUE">Issue</option>
-                  <option value="PULL_REQUEST">Pull request</option>
-                  <option value="COMMENT">Comment</option>
-                  <option value="COMMIT">Commit markdown file</option>
-                </select>
-              </label>
-              <label className={labelClass}>
+                  <SelectTrigger className={inputClass}>
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ISSUE">Issue</SelectItem>
+                    <SelectItem value="PULL_REQUEST">Pull request</SelectItem>
+                    <SelectItem value="COMMENT">Comment</SelectItem>
+                    <SelectItem value="COMMIT">Commit markdown file</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Label>
+              <Label className={labelClass}>
                 Title
-                <input
+                <Input
                   className={inputClass}
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                   placeholder="Issue or PR title"
                 />
-              </label>
+              </Label>
             </div>
 
             {actionType === "PULL_REQUEST" ? (
               <div className="grid gap-3">
-                <label className={labelClass}>
+                <Label className={labelClass}>
                   Base branch
-                  <input
+                  <Input
                     className={inputClass}
                     value={baseBranch}
                     onChange={(event) => setBaseBranch(event.target.value)}
                   />
-                </label>
-                <label className={labelClass}>
+                </Label>
+                <Label className={labelClass}>
                   Head branch
-                  <input
+                  <Input
                     className={inputClass}
                     value={headBranch}
                     onChange={(event) => setHeadBranch(event.target.value)}
                     placeholder="feature-branch"
                   />
-                </label>
+                </Label>
               </div>
             ) : null}
 
             {actionType === "COMMENT" ? (
               <div className="grid gap-3">
-                <label className={labelClass}>
+                <Label className={labelClass}>
                   Target
-                  <select
-                    className={inputClass}
+                  <Select
                     value={commentTarget}
-                    onChange={(event) =>
-                      setCommentTarget(
-                        event.target.value as PublishGitHubCommentTarget
-                      )
+                    onValueChange={(value) =>
+                      setCommentTarget(value as PublishGitHubCommentTarget)
                     }
                   >
-                    <option value="issue">Issue or PR number</option>
-                    <option value="commit">Commit SHA</option>
-                  </select>
-                </label>
+                    <SelectTrigger className={inputClass}>
+                      <SelectValue placeholder="Target" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="issue">Issue or PR number</SelectItem>
+                      <SelectItem value="commit">Commit SHA</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Label>
                 {commentTarget === "issue" ? (
-                  <label className={labelClass}>
+                  <Label className={labelClass}>
                     Number
-                    <input
+                    <Input
                       className={inputClass}
                       value={targetNumber}
                       onChange={(event) => setTargetNumber(event.target.value)}
                       placeholder="42"
                     />
-                  </label>
+                  </Label>
                 ) : (
-                  <label className={labelClass}>
+                  <Label className={labelClass}>
                     Commit SHA
-                    <input
+                    <Input
                       className={inputClass}
                       value={targetSha}
                       onChange={(event) => setTargetSha(event.target.value)}
                     />
-                  </label>
+                  </Label>
                 )}
               </div>
             ) : null}
 
             {actionType === "COMMIT" ? (
               <div className="grid gap-3">
-                <label className={labelClass}>
+                <Label className={labelClass}>
                   Branch
-                  <input
+                  <Input
                     className={inputClass}
                     value={headBranch}
                     onChange={(event) => setHeadBranch(event.target.value)}
                     placeholder={selectedRepository?.defaultBranch ?? "main"}
                   />
-                </label>
-                <label className={labelClass}>
+                </Label>
+                <Label className={labelClass}>
                   Markdown path
-                  <input
+                  <Input
                     className={inputClass}
                     value={path}
                     onChange={(event) => setPath(event.target.value)}
                     placeholder="docs/note.md"
                   />
-                </label>
-                <label className={labelClass}>
+                </Label>
+                <Label className={labelClass}>
                   Commit message
-                  <input
+                  <Input
                     className={inputClass}
                     value={commitMessage}
                     onChange={(event) => setCommitMessage(event.target.value)}
                     placeholder="docs: update note"
                   />
-                </label>
+                </Label>
                 <div className={labelClass}>
                   File content
                   <MarkdownRichEditor
@@ -1189,9 +1211,9 @@ export function GitHubWorkspace() {
               </div>
             ) : null}
           </div>
-        </section>
+        </Card>
 
-        <section className={panelClass}>
+        <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div className="flex items-center gap-2 text-sm font-semibold">
               <Star className="size-4 text-[#57606a]" />
@@ -1214,7 +1236,7 @@ export function GitHubWorkspace() {
               {selectedRepository?.fullName ?? "No repository selected"}
             </div>
           </div>
-        </section>
+        </Card>
       </aside>
     </div>
   );

@@ -15,6 +15,16 @@ import { ActivityCard } from "@/components/study/activity-card";
 import { ContributionGrid } from "@/components/study/contribution-grid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { HomeDashboardData, StudyPartySummary } from "@/lib/study/mock-data";
 
 type StudyDashboardProps = {
@@ -71,9 +81,13 @@ export function StudyDashboard({ data }: StudyDashboardProps) {
       <header className="sticky top-0 z-40 border-b border-[#57606a] bg-[#24292f] text-white">
         <div className="mx-auto flex min-h-14 w-full max-w-[1280px] items-center gap-3 px-4">
           <Code2 className="size-8 shrink-0" />
-          <div className="hidden min-w-0 flex-1 items-center gap-2 rounded-md border border-[#57606a] bg-[#24292f] px-2.5 py-1.5 text-sm text-[#c9d1d9] md:flex">
-            <Search className="size-4 shrink-0" />
-            <span className="truncate">Search or jump to...</span>
+          <div className="relative hidden min-w-0 flex-1 md:block">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-[#c9d1d9]" />
+            <Input
+              readOnly
+              className="border-[#57606a] bg-[#24292f] pl-8 text-[#c9d1d9] shadow-none placeholder:text-[#c9d1d9] focus-visible:ring-white/20"
+              placeholder="Search or jump to..."
+            />
           </div>
           <nav className="hidden items-center gap-4 text-sm font-semibold lg:flex">
             <Link className="hover:text-[#c9d1d9]" href="/">
@@ -118,40 +132,50 @@ export function StudyDashboard({ data }: StudyDashboardProps) {
       </header>
 
       <div className="border-b border-[#d0d7de] bg-white">
-        <div className="mx-auto flex w-full max-w-[1280px] items-center gap-6 overflow-x-auto px-4 text-sm">
-          <a className="flex h-12 shrink-0 items-center gap-2 border-b-2 border-[#fd8c73] font-semibold">
-            <Inbox className="size-4" />
-            Feed
-          </a>
-          <a className="flex h-12 shrink-0 items-center gap-2 text-[#57606a]">
-            <Users className="size-4" />
-            Parties
-          </a>
-          <a className="flex h-12 shrink-0 items-center gap-2 text-[#57606a]">
-            <GitPullRequest className="size-4" />
-            Pull requests
-          </a>
+        <div className="mx-auto w-full max-w-[1280px] overflow-x-auto px-4">
+          <Tabs defaultValue="feed">
+            <TabsList className="h-12 gap-6">
+              <TabsTrigger value="feed">
+                <Inbox className="size-4" />
+                Feed
+              </TabsTrigger>
+              <TabsTrigger value="parties" className="text-[#57606a]">
+                <Users className="size-4" />
+                Parties
+              </TabsTrigger>
+              <TabsTrigger value="pull-requests" className="text-[#57606a]">
+                <GitPullRequest className="size-4" />
+                Pull requests
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
       <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[280px_minmax(0,1fr)_320px]">
         <aside id="parties" className="grid gap-4 lg:sticky lg:top-[72px] lg:self-start">
-          <section className="rounded-md border border-[#d0d7de] bg-white">
-            <div className="flex items-center justify-between border-b border-[#d0d7de] bg-[#f6f8fa] px-4 py-3">
-              <div className="flex items-center gap-2 text-sm font-semibold">
+          <Card className="gap-0 rounded-md border-[#d0d7de] py-0">
+            <CardHeader className="grid-cols-[1fr_auto] gap-3 rounded-t-md border-b border-[#d0d7de] bg-[#f6f8fa] py-3">
+              <CardTitle className="flex items-center gap-2 text-sm">
                 <BookOpen className="size-4 text-[#57606a]" />
                 Joined parties
-              </div>
+              </CardTitle>
+              <CardAction>
               <Badge variant="outline" className="border-[#d0d7de] bg-white">
                 {data.parties.length}
               </Badge>
-            </div>
-            <div className="p-2">
+              </CardAction>
+            </CardHeader>
+            <CardContent className="p-0">
+              <ScrollArea className="max-h-[480px]">
+                <div className="p-2">
               {data.parties.map((party) => (
                 <PartyListItem key={party.id} party={party} />
               ))}
-            </div>
-          </section>
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </aside>
 
         <section className="grid min-w-0 gap-4">
@@ -161,15 +185,21 @@ export function StudyDashboard({ data }: StudyDashboardProps) {
         </section>
 
         <aside className="grid gap-4 lg:sticky lg:top-[72px] lg:self-start">
-          <section className="rounded-md border border-[#d0d7de] bg-white p-4">
+          <Card className="rounded-md border-[#d0d7de] py-4">
+            <CardContent>
             <ContributionGrid days={data.contributions} />
-          </section>
-          <section className="rounded-md border border-[#d0d7de] bg-white p-4">
-            <div className="mb-3 text-sm font-semibold">Recommended parties</div>
+            </CardContent>
+          </Card>
+          <Card className="rounded-md border-[#d0d7de] py-4">
+            <CardHeader>
+              <CardTitle className="text-sm">Recommended parties</CardTitle>
+            </CardHeader>
+            <CardContent>
             {data.recommendedParties.map((party) => (
               <RecommendedParty key={party.id} party={party} />
             ))}
-          </section>
+            </CardContent>
+          </Card>
         </aside>
       </div>
     </main>

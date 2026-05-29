@@ -1,3 +1,5 @@
+import { Card, CardContent } from "@/components/ui/card";
+
 type MarkdownDocumentProps = {
   value: string;
 };
@@ -46,8 +48,10 @@ function renderLine(line: string, index: number) {
 
 export function MarkdownDocument({ value }: MarkdownDocumentProps) {
   return (
-    <div className="grid gap-1 rounded-md border border-[#d0d7de] bg-white p-4">
+    <Card className="rounded-md border-[#d0d7de] py-0">
+      <CardContent className="grid gap-1 p-4">
       {value.split(/\r?\n/).map(renderLine)}
-    </div>
+      </CardContent>
+    </Card>
   );
 }

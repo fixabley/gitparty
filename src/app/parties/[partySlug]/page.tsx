@@ -11,8 +11,11 @@ import { notFound } from "next/navigation";
 
 import { ActivityCard } from "@/components/study/activity-card";
 import { MarkdownDocument } from "@/components/study/markdown-document";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockPartyDetails } from "@/lib/study/mock-data";
 
 type PartyPageProps = {
@@ -35,9 +38,11 @@ export default async function PartyPage({ params }: PartyPageProps) {
         <div className="mx-auto grid w-full max-w-[1280px] gap-4 px-4 py-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex size-14 items-center justify-center rounded-md border border-[#d0d7de] bg-[#0969da] text-xl font-semibold text-white">
-                {party.title.slice(0, 1)}
-              </div>
+              <Avatar className="size-14 rounded-md border border-[#d0d7de]">
+                <AvatarFallback className="rounded-md bg-[#0969da] text-xl text-white">
+                  {party.title.slice(0, 1)}
+                </AvatarFallback>
+              </Avatar>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="truncate text-2xl font-semibold">
@@ -65,20 +70,22 @@ export default async function PartyPage({ params }: PartyPageProps) {
             </div>
           </div>
 
-          <nav className="flex gap-6 overflow-x-auto text-sm">
-            <a className="flex h-10 shrink-0 items-center gap-2 border-b-2 border-[#fd8c73] font-semibold">
-              <BookOpen className="size-4" />
-              Overview
-            </a>
-            <a className="flex h-10 shrink-0 items-center gap-2 text-[#57606a]">
-              <GitPullRequest className="size-4" />
-              Pull requests
-            </a>
-            <a className="flex h-10 shrink-0 items-center gap-2 text-[#57606a]">
-              <GitBranch className="size-4" />
-              Repositories
-            </a>
-          </nav>
+          <Tabs defaultValue="overview">
+            <TabsList className="gap-6 overflow-x-auto">
+              <TabsTrigger value="overview">
+                <BookOpen className="size-4" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="pull-requests" className="text-[#57606a]">
+                <GitPullRequest className="size-4" />
+                Pull requests
+              </TabsTrigger>
+              <TabsTrigger value="repositories" className="text-[#57606a]">
+                <GitBranch className="size-4" />
+                Repositories
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </header>
 
@@ -86,11 +93,11 @@ export default async function PartyPage({ params }: PartyPageProps) {
         <section className="grid min-w-0 gap-4">
           <MarkdownDocument value={party.coverMarkdown} />
 
-          <section className="rounded-md border border-[#d0d7de] bg-white">
-            <div className="border-b border-[#d0d7de] bg-[#f6f8fa] px-4 py-3 text-sm font-semibold">
-              Mini parties
-            </div>
-            <div className="divide-y divide-[#d0d7de]">
+          <Card className="gap-0 rounded-md border-[#d0d7de] py-0">
+            <CardHeader className="rounded-t-md border-b border-[#d0d7de] bg-[#f6f8fa] py-3">
+              <CardTitle className="text-sm">Mini parties</CardTitle>
+            </CardHeader>
+            <CardContent className="divide-y divide-[#d0d7de] p-0">
               {party.miniParties.map((miniParty) => (
                 <Link
                   key={miniParty.id}
@@ -108,8 +115,8 @@ export default async function PartyPage({ params }: PartyPageProps) {
                   <div className="text-sm text-[#57606a]">{miniParty.topic}</div>
                 </Link>
               ))}
-            </div>
-          </section>
+            </CardContent>
+          </Card>
 
           <section className="grid gap-3">
             {party.activities.map((activity) => (
@@ -123,11 +130,11 @@ export default async function PartyPage({ params }: PartyPageProps) {
         </section>
 
         <aside className="grid gap-4 lg:sticky lg:top-6 lg:self-start">
-          <section className="rounded-md border border-[#d0d7de] bg-white">
-            <div className="border-b border-[#d0d7de] bg-[#f6f8fa] px-4 py-3 text-sm font-semibold">
-              Repositories
-            </div>
-            <div className="divide-y divide-[#d0d7de]">
+          <Card className="gap-0 rounded-md border-[#d0d7de] py-0">
+            <CardHeader className="rounded-t-md border-b border-[#d0d7de] bg-[#f6f8fa] py-3">
+              <CardTitle className="text-sm">Repositories</CardTitle>
+            </CardHeader>
+            <CardContent className="divide-y divide-[#d0d7de] p-0">
               {party.repositories.map((repository) => (
                 <a
                   key={repository.id}
@@ -144,21 +151,27 @@ export default async function PartyPage({ params }: PartyPageProps) {
                   </span>
                 </a>
               ))}
-            </div>
-          </section>
+            </CardContent>
+          </Card>
 
-          <section className="rounded-md border border-[#d0d7de] bg-white">
-            <div className="flex items-center gap-2 border-b border-[#d0d7de] bg-[#f6f8fa] px-4 py-3 text-sm font-semibold">
-              <Radio className="size-4 text-[#1f883d]" />
-              Online
-            </div>
-            <div className="divide-y divide-[#d0d7de]">
+          <Card className="gap-0 rounded-md border-[#d0d7de] py-0">
+            <CardHeader className="rounded-t-md border-b border-[#d0d7de] bg-[#f6f8fa] py-3">
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Radio className="size-4 text-[#1f883d]" />
+                Online
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="divide-y divide-[#d0d7de] p-0">
               {party.members.map((member) => (
                 <div key={member.id} className="flex items-center gap-3 px-4 py-3">
-                  <div
-                    className="size-8 rounded-full"
-                    style={{ backgroundColor: member.avatarColor }}
-                  />
+                  <Avatar>
+                    <AvatarFallback
+                      className="text-white"
+                      style={{ backgroundColor: member.avatarColor }}
+                    >
+                      {member.nickname.slice(0, 1).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-semibold">
                       {member.nickname}
@@ -180,8 +193,8 @@ export default async function PartyPage({ params }: PartyPageProps) {
                   />
                 </div>
               ))}
-            </div>
-          </section>
+            </CardContent>
+          </Card>
         </aside>
       </div>
     </main>

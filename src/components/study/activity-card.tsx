@@ -7,6 +7,7 @@ import {
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import type { StudyActivityCard } from "@/lib/study/mock-data";
 
 type ActivityCardProps = {
@@ -32,11 +33,8 @@ function ActivityIcon({ type }: { type: string }) {
 
 export function ActivityCard({ activity, showParty = true }: ActivityCardProps) {
   return (
-    <article
-      id={activity.id}
-      className="rounded-md border border-[#d0d7de] bg-white"
-    >
-      <div className="flex items-start gap-3 p-4">
+    <Card id={activity.id} className="rounded-md border-[#d0d7de] py-0">
+      <CardContent className="flex items-start gap-3 p-4">
         <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-[#d0d7de] bg-[#f6f8fa]">
           <ActivityIcon type={activity.type} />
         </div>
@@ -61,7 +59,7 @@ export function ActivityCard({ activity, showParty = true }: ActivityCardProps) 
             <span>{activity.commentCount} comments</span>
           </div>
         </div>
-      </div>
-    </article>
+      </CardContent>
+    </Card>
   );
 }
