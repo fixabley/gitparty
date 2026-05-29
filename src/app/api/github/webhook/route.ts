@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { verifyGitHubSignature } from "@/lib/github";
 import { summarizeGitHubWebhook } from "@/lib/github-webhook";
 import { prisma } from "@/lib/prisma";
+import { createPartyActivitiesForWebhook } from "@/lib/study/activity";
 import type { GitHubWebhookPayload } from "@/types/github";
 
 export const runtime = "nodejs";
@@ -92,8 +93,17 @@ export async function POST(request: Request) {
     },
   });
 
+  const partyActivities = await createPartyActivitiesForWebhook({
+    repositoryId,
+    webhookEventId: stored.id,
+    event,
+    sender: payload.sender?.login,
+    summary,
+  });
+
   return NextResponse.json({
     ok: true,
     id: stored.id,
+    partyActivityCount: partyActivities.length,
   });
 }

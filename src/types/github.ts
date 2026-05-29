@@ -203,6 +203,7 @@ export type RepositorySlug = GitHubRepositoryCoordinates;
 
 export type RegisterRepositoryRequestBody = {
   repository?: string;
+  partyId?: string;
   webhookUrl?: string;
   installWebhook?: boolean;
 };

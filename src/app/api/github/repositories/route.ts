@@ -7,6 +7,7 @@ import {
 } from "@/lib/github";
 import { parseRepositorySlug } from "@/lib/github-webhook";
 import { prisma } from "@/lib/prisma";
+import { registerPartyRepository } from "@/lib/study/activity";
 import type { RegisterRepositoryRequestBody } from "@/types/github";
 
 export const runtime = "nodejs";
@@ -35,6 +36,20 @@ export async function POST(request: Request) {
       { error: "repository is required. Use owner/repo or a GitHub URL." },
       { status: 400 }
     );
+  }
+
+  if (body.partyId) {
+    const party = await prisma.party.findUnique({
+      where: { id: body.partyId },
+      select: { id: true },
+    });
+
+    if (!party) {
+      return NextResponse.json(
+        { error: "partyId does not reference an existing party." },
+        { status: 404 }
+      );
+    }
   }
 
   const { owner, repo } = parseRepositorySlug({ input: body.repository });
@@ -102,9 +117,17 @@ export async function POST(request: Request) {
     }
   }
 
+  const partyRepository = body.partyId
+    ? await registerPartyRepository({
+        partyId: body.partyId,
+        repositoryId: repository.id,
+      })
+    : undefined;
+
   return NextResponse.json(
     {
       repository,
+      partyRepository,
       webhook,
       webhookError,
     },
