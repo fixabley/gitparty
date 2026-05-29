@@ -13,6 +13,7 @@ import Link from "next/link";
 
 import { ActivityCard } from "@/components/study/activity-card";
 import { ContributionGrid } from "@/components/study/contribution-grid";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -102,6 +103,7 @@ export function StudyDashboard({ data }: StudyDashboardProps) {
             </Link>
           </nav>
           <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle />
             <Button asChild size="sm" variant="ghost">
               <Link href="/api/auth/signin">Sign in</Link>
             </Button>

@@ -11,6 +11,7 @@ import { notFound } from "next/navigation";
 
 import { ActivityCard } from "@/components/study/activity-card";
 import { MarkdownDocument } from "@/components/study/markdown-document";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ export default async function PartyPage({ params }: PartyPageProps) {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
+              <ThemeToggle />
               <Button variant="outline">
                 <GitBranch data-icon="inline-start" />
                 Invite
