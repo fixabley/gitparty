@@ -51,6 +51,7 @@ export function createPrismaStudyRepository({
       summary,
       githubUrl,
       githubActorLogin,
+      githubNumber,
       githubSha,
     }) {
       const prismaEventType = toPrismaPartyActivityType(eventType);
@@ -68,6 +69,7 @@ export function createPrismaStudyRepository({
           summary,
           githubUrl,
           githubActorLogin,
+          githubNumber,
           githubSha,
         },
         create: {
@@ -79,6 +81,7 @@ export function createPrismaStudyRepository({
           summary,
           githubUrl,
           githubActorLogin,
+          githubNumber,
           githubSha,
         },
         select: {

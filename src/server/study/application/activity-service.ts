@@ -90,6 +90,7 @@ export function createStudyActivityService({
             summary: summary.summary,
             githubUrl: summary.htmlUrl,
             githubActorLogin: sender ?? undefined,
+            githubNumber: summary.number,
             githubSha: summary.sha,
           })
         )

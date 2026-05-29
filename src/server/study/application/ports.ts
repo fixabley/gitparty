@@ -50,6 +50,7 @@ export type StudyRepositoryPort = {
     summary: string;
     githubUrl?: string;
     githubActorLogin?: string;
+    githubNumber?: number;
     githubSha?: string;
   }): Promise<PartyActivityRecord>;
   registerPartyRepository(

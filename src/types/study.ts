@@ -31,3 +31,28 @@ export type PartyRouteParams = {
 export type MiniPartyRouteParams = PartyRouteParams & {
   miniSlug: string;
 };
+
+export type CreatePartyRequestBody = {
+  title?: string;
+  topic?: string;
+  description?: string;
+  visibility?: "PUBLIC" | "PRIVATE";
+  capacity?: number;
+  tags?: string[];
+  parentId?: string;
+  nickname?: string;
+  coverMarkdown?: string;
+};
+
+export type RegisterPartyRepositoryRequestBody = {
+  repository?: string;
+};
+
+export type ActivatePartyRepositoryRequestBody = {
+  repositoryId?: string;
+  installationId?: number;
+};
+
+export type CreatePlatformActivityCommentRequestBody = {
+  body?: string;
+};

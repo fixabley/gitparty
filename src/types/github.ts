@@ -7,6 +7,7 @@ export type GitHubRepositoryCoordinates = {
 
 export type GitHubApiRequestOptions = RequestInit & {
   tokenRequired?: boolean;
+  installationId?: number;
 };
 
 export type GitHubRepositoryResponse = {
@@ -26,6 +27,11 @@ export type GitHubWebhookResponse = {
   config?: {
     url?: string;
   };
+};
+
+export type GitHubAppInstallationTokenResponse = {
+  token: string;
+  expires_at: string;
 };
 
 export type GitHubIssueResponse = {
@@ -95,6 +101,7 @@ export type CreateRepositoryWebhookParams = GitHubRepositoryCoordinates & {
 export type CreateGitHubIssueParams = GitHubRepositoryCoordinates & {
   title: string;
   body: string;
+  installationId?: number;
 };
 
 export type CreateGitHubPullRequestParams = GitHubRepositoryCoordinates & {
@@ -102,6 +109,7 @@ export type CreateGitHubPullRequestParams = GitHubRepositoryCoordinates & {
   body: string;
   head: string;
   base: string;
+  installationId?: number;
 };
 
 export type GitHubPullRequestLookupParams = GitHubRepositoryCoordinates & {
@@ -111,6 +119,7 @@ export type GitHubPullRequestLookupParams = GitHubRepositoryCoordinates & {
 export type CreateGitHubIssueCommentParams = GitHubRepositoryCoordinates & {
   issueNumber: number;
   body: string;
+  installationId?: number;
 };
 
 export type CreateGitHubPullRequestReviewCommentParams =
@@ -123,11 +132,13 @@ export type CreateGitHubPullRequestReviewCommentParams =
     side?: DiffLineSide;
     startLine?: number;
     startSide?: DiffLineSide;
+    installationId?: number;
   };
 
 export type CreateGitHubCommitCommentParams = GitHubRepositoryCoordinates & {
   sha: string;
   body: string;
+  installationId?: number;
 };
 
 export type GitHubFileLookupParams = GitHubRepositoryCoordinates & {
@@ -140,6 +151,7 @@ export type CreateOrUpdateMarkdownFileParams = GitHubRepositoryCoordinates & {
   path: string;
   message: string;
   content: string;
+  installationId?: number;
 };
 
 export type VerifyGitHubSignatureParams = {
@@ -163,6 +175,9 @@ export type GitHubWebhookPayload = {
   };
   sender?: {
     login?: string;
+  };
+  installation?: {
+    id?: number;
   };
   pull_request?: {
     title?: string;
@@ -196,6 +211,7 @@ export type GitHubWebhookSummary = {
   summary: string;
   ref?: string;
   sha?: string;
+  number?: number;
   htmlUrl?: string;
 };
 

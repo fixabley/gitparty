@@ -46,6 +46,7 @@ export function summarizeGitHubWebhook({
       summary: `PR #${payload.pull_request?.number ?? "?"} ${
         payload.action ?? "updated"
       }`,
+      number: payload.pull_request?.number,
       htmlUrl: payload.pull_request?.html_url,
     };
   }
@@ -56,6 +57,7 @@ export function summarizeGitHubWebhook({
       summary: `Issue #${payload.issue?.number ?? "?"} ${
         payload.action ?? "updated"
       }`,
+      number: payload.issue?.number,
       htmlUrl: payload.issue?.html_url,
     };
   }
@@ -68,6 +70,7 @@ export function summarizeGitHubWebhook({
       summary: `${subject} #${payload.issue?.number ?? "?"} comment ${
         payload.action ?? "updated"
       }`,
+      number: payload.issue?.number,
       htmlUrl: payload.comment?.html_url ?? payload.issue?.html_url,
     };
   }
