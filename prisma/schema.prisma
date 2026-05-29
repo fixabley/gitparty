@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  authenticators Authenticator[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model GitHubRepository {
+  id            String   @id @default(cuid())
+  owner         String
+  name          String
+  fullName      String   @unique
+  htmlUrl       String?
+  defaultBranch String?
+  webhookId     Int?
+  webhookUrl    String?
+  webhookActive Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  events GitHubWebhookEvent[]
+  drafts GitHubDraft[]
+
+  @@index([owner, name])
+}
+
+model GitHubWebhookEvent {
+  id           String            @id @default(cuid())
+  repositoryId String?
+  repository   GitHubRepository? @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+  deliveryId   String            @unique
+  event        String
+  action       String?
+  sender       String?
+  title        String?
+  summary      String?
+  ref          String?
+  sha          String?
+  htmlUrl      String?
+  rawPayload   String
+  receivedAt   DateTime          @default(now())
+
+  @@index([event])
+  @@index([receivedAt])
+}
+
+model GitHubDraft {
+  id            String           @id @default(cuid())
+  repositoryId  String
+  repository    GitHubRepository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  type          GitHubDraftType
+  title         String?
+  body          String?
+  targetNumber  Int?
+  targetSha     String?
+  baseBranch    String?
+  headBranch    String?
+  path          String?
+  commitMessage String?
+  fileContent   String?
+  status        GitHubDraftStatus @default(DRAFT)
+  githubUrl     String?
+  error         String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([repositoryId, type])
+  @@index([status])
+}
+
+enum GitHubDraftType {
+  ISSUE
+  PULL_REQUEST
+  COMMENT
+  COMMIT
+}
+
+enum GitHubDraftStatus {
+  DRAFT
+  SENT
+  FAILED
+}

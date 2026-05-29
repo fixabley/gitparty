@@ -1,65 +1,97 @@
-import Image from "next/image";
+import {
+  Bell,
+  CircleDot,
+  Code2,
+  GitPullRequest,
+  Inbox,
+  Plus,
+  Search,
+} from "lucide-react";
+import Link from "next/link";
+
+import { GitHubWorkspace } from "@/components/github/github-workspace";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main id="top" className="min-h-screen bg-[#f6f8fa] text-[#24292f]">
+      <header className="sticky top-0 z-40 border-b border-[#57606a] bg-[#24292f] text-white">
+        <div className="mx-auto flex min-h-14 w-full max-w-[1280px] items-center gap-3 px-4">
+          <Code2 className="size-8 shrink-0" />
+          <div className="hidden min-w-0 flex-1 items-center gap-2 rounded-md border border-[#57606a] bg-[#24292f] px-2.5 py-1.5 text-sm text-[#c9d1d9] md:flex">
+            <Search className="size-4 shrink-0" />
+            <span className="truncate">Search or jump to...</span>
+          </div>
+          <nav className="hidden items-center gap-4 text-sm font-semibold lg:flex">
+            <a className="hover:text-[#c9d1d9]" href="#top">
+              Dashboard
+            </a>
+            <a className="hover:text-[#c9d1d9]" href="#top">
+              Pull requests
+            </a>
+            <a className="hover:text-[#c9d1d9]" href="#top">
+              Issues
+            </a>
+          </nav>
+          <div className="ml-auto flex items-center gap-1">
+            <Button
+              asChild
+              size="sm"
+              variant="ghost"
+              className="text-white hover:bg-white/10 hover:text-white"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <Link href="/api/auth/signin">Sign in</Link>
+            </Button>
+            <Button
+              asChild
+              size="icon"
+              variant="ghost"
+              className="text-white hover:bg-white/10 hover:text-white"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <Link href="/api/auth/session" aria-label="Session JSON">
+                <Inbox />
+              </Link>
+            </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="text-white hover:bg-white/10 hover:text-white"
+              aria-label="Create"
+            >
+              <Plus />
+            </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="text-white hover:bg-white/10 hover:text-white"
+              aria-label="Notifications"
+            >
+              <Bell />
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
+      </header>
+
+      <div className="border-b border-[#d0d7de] bg-white">
+        <div className="mx-auto flex w-full max-w-[1280px] items-center gap-6 overflow-x-auto px-4 text-sm">
+          <a className="flex h-12 shrink-0 items-center gap-2 border-b-2 border-[#fd8c73] font-semibold">
+            <Inbox className="size-4" />
+            Feed
           </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
+          <a className="flex h-12 shrink-0 items-center gap-2 text-[#57606a]">
+            <GitPullRequest className="size-4" />
+            Pull requests
+          </a>
+          <a className="flex h-12 shrink-0 items-center gap-2 text-[#57606a]">
+            <CircleDot className="size-4" />
+            Issues
           </a>
         </div>
-      </main>
-    </div>
+      </div>
+
+      <GitHubWorkspace />
+    </main>
   );
 }
