@@ -11,7 +11,6 @@ import { notFound } from "next/navigation";
 
 import { ActivityCard } from "@/components/study/activity-card";
 import { MarkdownDocument } from "@/components/study/markdown-document";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,7 +33,7 @@ export default async function PartyPage({ params }: PartyPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
       <header className="border-b border-border bg-card">
         <div className="mx-auto grid w-full max-w-[1280px] gap-4 px-4 py-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -56,11 +55,12 @@ export default async function PartyPage({ params }: PartyPageProps) {
                     {party.visibility.toLowerCase()}
                   </Badge>
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">{party.topic}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {party.topic}
+                </p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <ThemeToggle />
               <Button variant="outline">
                 <GitBranch data-icon="inline-start" />
                 Invite
@@ -114,7 +114,9 @@ export default async function PartyPage({ params }: PartyPageProps) {
                       {miniParty.visibility.toLowerCase()}
                     </Badge>
                   </div>
-                  <div className="text-sm text-muted-foreground">{miniParty.topic}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {miniParty.topic}
+                  </div>
                 </Link>
               ))}
             </CardContent>
@@ -131,7 +133,7 @@ export default async function PartyPage({ params }: PartyPageProps) {
           </section>
         </section>
 
-        <aside className="grid gap-4 lg:sticky lg:top-6 lg:self-start">
+        <aside className="grid gap-4 lg:sticky lg:top-[72px] lg:self-start">
           <Card className="gap-0 py-0">
             <CardHeader className="border-b bg-muted/50 py-3">
               <CardTitle className="text-sm">Repositories</CardTitle>

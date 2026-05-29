@@ -3,6 +3,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { AppHeader } from "@/components/layout/app-header";
 import { ThemeScript } from "@/components/theme/theme-script";
 
 import { Providers } from "./providers";
@@ -37,7 +38,10 @@ export default function RootLayout({
     >
       <ThemeScript />
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <Providers>{children}</Providers>
+        <Providers>
+          <AppHeader />
+          {children}
+        </Providers>
       </body>
       {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
     </html>

@@ -1,21 +1,15 @@
 import {
-  Bell,
   BookOpen,
-  Code2,
   GitPullRequest,
   Inbox,
   Lock,
-  Plus,
-  Search,
   Users,
 } from "lucide-react";
 import Link from "next/link";
 
 import { ActivityCard } from "@/components/study/activity-card";
 import { ContributionGrid } from "@/components/study/contribution-grid";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
@@ -23,7 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { HomeDashboardData, StudyPartySummary } from "@/lib/study/mock-data";
@@ -76,57 +69,10 @@ function RecommendedParty({ party }: { party: StudyPartySummary }) {
 
 export function StudyDashboard({ data }: StudyDashboardProps) {
   return (
-    <main id="top" className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-40 border-b bg-background text-foreground">
-        <div className="mx-auto flex min-h-14 w-full max-w-[1280px] items-center gap-3 px-4">
-          <Code2 className="size-8 shrink-0" />
-          <div className="relative hidden min-w-0 flex-1 md:block">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              readOnly
-              className="pl-8 shadow-none"
-              placeholder="Search or jump to..."
-            />
-          </div>
-          <nav className="hidden items-center gap-4 text-sm font-semibold lg:flex">
-            <Link className="hover:text-muted-foreground" href="/">
-              Feed
-            </Link>
-            <Link className="hover:text-muted-foreground" href="/#parties">
-              Parties
-            </Link>
-            <Link
-              className="hover:text-muted-foreground"
-              href="/#pull-requests"
-            >
-              Pull requests
-            </Link>
-          </nav>
-          <div className="ml-auto flex items-center gap-1">
-            <ThemeToggle />
-            <Button asChild size="sm" variant="ghost">
-              <Link href="/api/auth/signin">Sign in</Link>
-            </Button>
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              aria-label="Create party"
-            >
-              <Plus />
-            </Button>
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              aria-label="Notifications"
-            >
-              <Bell />
-            </Button>
-          </div>
-        </div>
-      </header>
-
+    <main
+      id="top"
+      className="min-h-[calc(100vh-3.5rem)] bg-background text-foreground"
+    >
       <div className="border-b border-border bg-card">
         <div className="mx-auto w-full max-w-[1280px] overflow-x-auto px-4">
           <Tabs defaultValue="feed">
@@ -175,7 +121,7 @@ export function StudyDashboard({ data }: StudyDashboardProps) {
           </Card>
         </aside>
 
-        <section className="grid min-w-0 gap-4">
+        <section id="pull-requests" className="grid min-w-0 gap-4">
           {data.feed.map((activity) => (
             <ActivityCard key={activity.id} activity={activity} />
           ))}
