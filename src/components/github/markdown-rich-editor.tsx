@@ -35,13 +35,13 @@ type MarkdownSyncPluginProps = {
 };
 
 const editorTheme = {
-  code: "my-2 block overflow-auto rounded-md border border-[#d0d7de] bg-[#f6f8fa] p-3 font-mono text-xs leading-5",
+  code: "my-2 block overflow-auto rounded-md border border-border bg-muted p-3 font-mono text-xs leading-5",
   heading: {
-    h1: "mb-2 border-b border-[#d0d7de] pb-1 text-2xl font-semibold leading-8",
-    h2: "mb-2 border-b border-[#d0d7de] pb-1 text-xl font-semibold leading-7",
+    h1: "mb-2 border-b border-border pb-1 text-2xl font-semibold leading-8",
+    h2: "mb-2 border-b border-border pb-1 text-xl font-semibold leading-7",
     h3: "mb-2 text-base font-semibold leading-6",
   },
-  link: "text-[#0969da] underline underline-offset-2",
+  link: "text-primary underline underline-offset-2",
   list: {
     listitem: "my-1",
     nested: {
@@ -52,10 +52,10 @@ const editorTheme = {
   },
   paragraph: "my-1 min-h-5",
   quote:
-    "my-2 border-l-4 border-[#d0d7de] pl-3 text-[#57606a]",
+    "my-2 border-l-4 border-border pl-3 text-muted-foreground",
   text: {
     bold: "font-semibold",
-    code: "rounded bg-[#afb8c133] px-1 py-0.5 font-mono text-[0.92em]",
+    code: "rounded bg-muted px-1 py-0.5 font-mono text-[0.92em]",
     italic: "italic",
     strikethrough: "line-through",
   },
@@ -118,16 +118,16 @@ export function MarkdownRichEditor({
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className="relative rounded-md border border-[#d0d7de] bg-white focus-within:border-[#0969da] focus-within:ring-2 focus-within:ring-[#0969da]/20">
+      <div className="relative rounded-md border border-border bg-card focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50">
         <RichTextPlugin
           contentEditable={
             <ContentEditable
               id={id}
               aria-label={placeholder}
               aria-placeholder={placeholder}
-              className={`${minHeight} max-h-[520px] overflow-auto px-3 py-2 text-sm font-normal leading-6 text-[#24292f] outline-none`}
+              className={`${minHeight} max-h-[520px] overflow-auto px-3 py-2 text-sm font-normal leading-6 text-foreground outline-none`}
               placeholder={
-                <div className="pointer-events-none absolute left-3 top-2 text-sm font-normal text-[#57606a]">
+                <div className="pointer-events-none absolute left-3 top-2 text-sm font-normal text-muted-foreground">
                   {placeholder}
                 </div>
               }

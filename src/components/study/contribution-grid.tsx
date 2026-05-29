@@ -7,38 +7,38 @@ type ContributionGridProps = {
 
 function contributionClass(count: number) {
   if (count >= 6) {
-    return "bg-[#216e39]";
+    return "bg-primary";
   }
 
   if (count >= 4) {
-    return "bg-[#30a14e]";
+    return "bg-primary/75";
   }
 
   if (count >= 2) {
-    return "bg-[#40c463]";
+    return "bg-primary/50";
   }
 
   if (count >= 1) {
-    return "bg-[#9be9a8]";
+    return "bg-primary/25";
   }
 
-  return "bg-[#ebedf0]";
+  return "bg-muted";
 }
 
 export function ContributionGrid({ days }: ContributionGridProps) {
   return (
     <div className="grid gap-2">
       <div className="text-sm font-semibold">Contributions</div>
-      <ScrollArea className="rounded-md border border-[#d0d7de] bg-white p-3">
+      <ScrollArea className="rounded-md border border-border bg-card p-3">
         <div className="grid grid-flow-col grid-rows-7 gap-1">
-        {days.map((day, index) => (
-          <a
-            key={`${day.date}-${index}`}
-            href={`#activity-${day.date}`}
-            title={`${day.date}: ${day.count} activities`}
-            className={`size-3 rounded-[2px] ${contributionClass(day.count)}`}
-          />
-        ))}
+          {days.map((day, index) => (
+            <a
+              key={`${day.date}-${index}`}
+              href={`#activity-${day.date}`}
+              title={`${day.date}: ${day.count} activities`}
+              className={`size-3 rounded-[2px] ${contributionClass(day.count)}`}
+            />
+          ))}
         </div>
       </ScrollArea>
     </div>

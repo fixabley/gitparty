@@ -9,7 +9,7 @@ function renderLine(line: string, index: number) {
     return (
       <h1
         key={index}
-        className="mb-3 border-b border-[#d0d7de] pb-2 text-2xl font-semibold"
+        className="mb-3 border-b border-border pb-2 text-2xl font-semibold"
       >
         {line.slice(2)}
       </h1>
@@ -20,7 +20,7 @@ function renderLine(line: string, index: number) {
     return (
       <h2
         key={index}
-        className="mb-2 mt-4 border-b border-[#d0d7de] pb-1 text-xl font-semibold"
+        className="mb-2 mt-4 border-b border-border pb-1 text-xl font-semibold"
       >
         {line.slice(3)}
       </h2>
@@ -40,7 +40,7 @@ function renderLine(line: string, index: number) {
   }
 
   return (
-    <p key={index} className="text-sm leading-6 text-[#24292f]">
+    <p key={index} className="text-sm leading-6 text-foreground">
       {line}
     </p>
   );
@@ -48,9 +48,9 @@ function renderLine(line: string, index: number) {
 
 export function MarkdownDocument({ value }: MarkdownDocumentProps) {
   return (
-    <Card className="rounded-md border-[#d0d7de] py-0">
+    <Card className="py-0">
       <CardContent className="grid gap-1 p-4">
-      {value.split(/\r?\n/).map(renderLine)}
+        {value.split(/\r?\n/).map(renderLine)}
       </CardContent>
     </Card>
   );

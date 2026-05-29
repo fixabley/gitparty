@@ -17,42 +17,40 @@ type ActivityCardProps = {
 
 function ActivityIcon({ type }: { type: string }) {
   if (type === "PULL_REQUEST") {
-    return <GitPullRequest className="size-4 text-[#8250df]" />;
+    return <GitPullRequest className="size-4 text-primary" />;
   }
 
   if (type === "ISSUE") {
-    return <CircleDot className="size-4 text-[#1f883d]" />;
+    return <CircleDot className="size-4 text-primary" />;
   }
 
   if (type.includes("COMMENT")) {
-    return <MessageSquare className="size-4 text-[#0969da]" />;
+    return <MessageSquare className="size-4 text-primary" />;
   }
 
-  return <GitCommitHorizontal className="size-4 text-[#57606a]" />;
+  return <GitCommitHorizontal className="size-4 text-muted-foreground" />;
 }
 
 export function ActivityCard({ activity, showParty = true }: ActivityCardProps) {
   return (
-    <Card id={activity.id} className="rounded-md border-[#d0d7de] py-0">
+    <Card id={activity.id} className="py-0">
       <CardContent className="flex items-start gap-3 p-4">
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-[#d0d7de] bg-[#f6f8fa]">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-muted">
           <ActivityIcon type={activity.type} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <span className="font-semibold">{activity.actorName}</span>
-            <span className="text-[#57606a]">{activity.summary}</span>
-            <Badge variant="outline" className="border-[#d0d7de] bg-white">
-              {activity.type}
-            </Badge>
+            <span className="text-muted-foreground">{activity.summary}</span>
+            <Badge variant="outline">{activity.type}</Badge>
           </div>
           <Link
             href={activity.platformUrl}
-            className="mt-1 block truncate text-sm font-semibold text-[#0969da] hover:underline"
+            className="mt-1 block truncate text-sm font-semibold text-primary hover:underline"
           >
             {activity.title}
           </Link>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[#57606a]">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             {showParty ? <span>{activity.partyTitle}</span> : null}
             {activity.repository ? <span>{activity.repository}</span> : null}
             <span>{activity.createdLabel}</span>

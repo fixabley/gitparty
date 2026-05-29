@@ -110,12 +110,11 @@ type RenderDiffLineParams = {
   line: DiffLine;
 };
 
-const inputClass =
-  "h-8 w-full rounded-md border border-[#d0d7de] bg-white px-2.5 text-sm text-[#24292f] outline-none transition placeholder:text-[#57606a] focus-visible:border-[#0969da] focus-visible:ring-2 focus-visible:ring-[#0969da]/20";
-const labelClass = "grid gap-1.5 text-sm font-medium text-[#24292f]";
-const panelClass = "gap-0 rounded-md border-[#d0d7de] bg-white py-0";
+const inputClass = "h-8";
+const labelClass = "grid gap-1.5 text-sm font-medium";
+const panelClass = "gap-0 py-0";
 const panelHeaderClass =
-  "flex items-center justify-between gap-3 border-b border-[#d0d7de] bg-[#f6f8fa] px-4 py-3";
+  "flex items-center justify-between gap-3 border-b bg-muted/50 px-4 py-3";
 
 async function readJson<T>(response: Response) {
   const payload = (await response.json()) as JsonPayload<T>;
@@ -141,11 +140,11 @@ function lineClasses({ kind, selected }: LineClassesParams) {
   }
 
   if (kind === "add") {
-    return "bg-emerald-500/10";
+    return "bg-primary/10";
   }
 
   if (kind === "delete") {
-    return "bg-red-500/10";
+    return "bg-destructive/10";
   }
 
   if (kind === "hunk") {
@@ -531,11 +530,18 @@ export function GitHubWorkspace() {
       side: "RIGHT",
       lineNumber: rightNumber,
     });
+    const leftLineBackground = leftSelected
+      ? "bg-primary/10"
+      : line.kind === "delete"
+        ? "bg-destructive/10"
+        : "";
+    const rightLineBackground =
+      rightSelected || line.kind === "add" ? "bg-primary/10" : "";
 
     return (
       <tr key={line.id} className="select-none">
         <td
-          className={`w-12 cursor-crosshair border-r px-2 py-0.5 text-right font-mono text-xs text-muted-foreground ${leftSelected ? "bg-primary/10" : line.kind === "delete" ? "bg-red-500/10" : ""}`}
+          className={`w-12 cursor-crosshair border-r px-2 py-0.5 text-right font-mono text-xs text-muted-foreground ${leftLineBackground}`}
           onMouseDown={() => {
             if (leftNumber) {
               startLineSelection({
@@ -558,12 +564,12 @@ export function GitHubWorkspace() {
           {leftNumber ?? ""}
         </td>
         <td
-          className={`w-1/2 border-r px-3 py-0.5 font-mono text-xs whitespace-pre ${leftSelected ? "bg-primary/10" : line.kind === "delete" ? "bg-red-500/10" : ""}`}
+          className={`w-1/2 border-r px-3 py-0.5 font-mono text-xs whitespace-pre ${leftLineBackground}`}
         >
           {line.kind === "add" ? "" : line.content}
         </td>
         <td
-          className={`w-12 cursor-crosshair border-r px-2 py-0.5 text-right font-mono text-xs text-muted-foreground ${rightSelected ? "bg-primary/10" : line.kind === "add" ? "bg-emerald-500/10" : ""}`}
+          className={`w-12 cursor-crosshair border-r px-2 py-0.5 text-right font-mono text-xs text-muted-foreground ${rightLineBackground}`}
           onMouseDown={() => {
             if (rightNumber) {
               startLineSelection({
@@ -586,7 +592,7 @@ export function GitHubWorkspace() {
           {rightNumber ?? ""}
         </td>
         <td
-          className={`w-1/2 px-3 py-0.5 font-mono text-xs whitespace-pre ${rightSelected ? "bg-primary/10" : line.kind === "add" ? "bg-emerald-500/10" : ""}`}
+          className={`w-1/2 px-3 py-0.5 font-mono text-xs whitespace-pre ${rightLineBackground}`}
         >
           {line.kind === "delete" ? "" : line.content}
         </td>
@@ -595,15 +601,15 @@ export function GitHubWorkspace() {
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-6 px-4 py-6 text-[#24292f] lg:grid-cols-[280px_minmax(0,1fr)_320px]">
+    <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-6 px-4 py-6 text-foreground lg:grid-cols-[280px_minmax(0,1fr)_320px]">
       <aside className="grid gap-4 lg:sticky lg:top-[72px] lg:self-start">
         <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <BookOpen className="size-4 text-[#57606a]" />
+              <BookOpen className="size-4 text-muted-foreground" />
               Repositories
             </div>
-            <Badge variant="outline" className="border-[#d0d7de] bg-white">
+            <Badge variant="outline">
               {repositoriesQuery.data?.length ?? 0}
             </Badge>
           </div>
@@ -627,7 +633,7 @@ export function GitHubWorkspace() {
               />
             </Label>
             <div className="flex items-center justify-between gap-2">
-              <Label className="flex h-8 items-center gap-2 text-sm text-[#57606a]">
+              <Label className="flex h-8 items-center gap-2 text-sm text-muted-foreground">
                 <Checkbox
                   checked={installWebhook}
                   onCheckedChange={(checked) =>
@@ -638,7 +644,6 @@ export function GitHubWorkspace() {
               </Label>
               <Button
                 type="button"
-                className="bg-[#1f883d] text-white hover:bg-[#1a7f37]"
                 disabled={!repositoryInput || registerRepository.isPending}
                 onClick={() => registerRepository.mutate()}
               >
@@ -647,20 +652,20 @@ export function GitHubWorkspace() {
               </Button>
             </div>
             {registerRepository.data?.webhookError ? (
-              <div className="rounded-md border border-[#cf222e]/30 bg-[#ffebe9] p-3 text-sm text-[#cf222e]">
+              <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                 {registerRepository.data.webhookError}
               </div>
             ) : null}
           </div>
-          <div className="border-t border-[#d0d7de] p-2">
+          <div className="border-t border-border p-2">
             {repositoriesQuery.data?.length ? (
               repositoriesQuery.data.map((repository) => (
                 <button
                   key={repository.id}
                   type="button"
-                  className={`flex w-full items-center justify-between gap-3 rounded-md px-2 py-2 text-left text-sm transition hover:bg-[#f6f8fa] ${
+                  className={`flex w-full items-center justify-between gap-3 rounded-md px-2 py-2 text-left text-sm transition hover:bg-muted ${
                     selectedRepository?.id === repository.id
-                      ? "bg-[#ddf4ff]"
+                      ? "bg-accent"
                       : ""
                   }`}
                   onClick={() => {
@@ -668,16 +673,16 @@ export function GitHubWorkspace() {
                     setBaseBranch(repository.defaultBranch ?? "main");
                   }}
                 >
-                  <span className="min-w-0 truncate font-semibold text-[#0969da]">
+                  <span className="min-w-0 truncate font-semibold text-primary">
                     {repository.fullName}
                   </span>
-                  <span className="rounded-full border border-[#d0d7de] px-2 py-0.5 text-xs text-[#57606a]">
+                  <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
                     {repository.webhookActive ? "webhook" : "local"}
                   </span>
                 </button>
               ))
             ) : (
-              <div className="rounded-md border border-dashed border-[#d0d7de] p-3 text-sm text-[#57606a]">
+              <div className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
                 Register a repository to start the feed.
               </div>
             )}
@@ -687,16 +692,16 @@ export function GitHubWorkspace() {
         <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <Webhook className="size-4 text-[#57606a]" />
+              <Webhook className="size-4 text-muted-foreground" />
               Webhook endpoint
             </div>
           </div>
-          <div className="grid gap-2 p-3 text-sm text-[#57606a]">
-            <code className="break-all rounded-md bg-[#f6f8fa] px-2 py-1 text-xs text-[#24292f]">
+          <div className="grid gap-2 p-3 text-sm text-muted-foreground">
+            <code className="break-all rounded-md bg-muted px-2 py-1 text-xs text-foreground">
               /api/github/webhook
             </code>
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-[#1f883d]" />
+              <span className="size-2 rounded-full bg-primary" />
               Signature verification enabled
             </div>
           </div>
@@ -708,7 +713,7 @@ export function GitHubWorkspace() {
           <div className={panelHeaderClass}>
             <div>
               <div className="text-sm font-semibold">Home feed</div>
-              <div className="text-xs text-[#57606a]">
+              <div className="text-xs text-muted-foreground">
                 Repository activity from webhooks
               </div>
             </div>
@@ -722,7 +727,7 @@ export function GitHubWorkspace() {
               <RefreshCcw />
             </Button>
           </div>
-          <div className="divide-y divide-[#d0d7de]">
+          <div className="divide-y divide-border">
             {eventsQuery.data?.length ? (
               eventsQuery.data.map((event) => (
                 <a
@@ -730,17 +735,17 @@ export function GitHubWorkspace() {
                   href={event.htmlUrl ?? event.repository?.htmlUrl ?? "#"}
                   target="_blank"
                   rel="noreferrer"
-                  className="grid grid-cols-[32px_1fr] gap-3 px-4 py-4 transition hover:bg-[#f6f8fa]"
+                  className="grid grid-cols-[32px_1fr] gap-3 px-4 py-4 transition hover:bg-muted"
                 >
-                  <div className="flex size-8 items-center justify-center rounded-full border border-[#d0d7de] bg-[#f6f8fa]">
+                  <div className="flex size-8 items-center justify-center rounded-full border border-border bg-muted">
                     {event.event === "pull_request" ? (
-                      <GitPullRequest className="size-4 text-[#8250df]" />
+                      <GitPullRequest className="size-4 text-primary" />
                     ) : event.event === "issues" ? (
-                      <CircleDot className="size-4 text-[#1f883d]" />
+                      <CircleDot className="size-4 text-primary" />
                     ) : event.event.includes("comment") ? (
-                      <MessageSquarePlus className="size-4 text-[#0969da]" />
+                      <MessageSquarePlus className="size-4 text-primary" />
                     ) : (
-                      <GitCommitHorizontal className="size-4 text-[#57606a]" />
+                      <GitCommitHorizontal className="size-4 text-muted-foreground" />
                     )}
                   </div>
                   <div className="min-w-0">
@@ -748,20 +753,15 @@ export function GitHubWorkspace() {
                       <span className="font-semibold">
                         {event.sender ?? "github"}
                       </span>
-                      <span className="text-[#57606a]">
+                      <span className="text-muted-foreground">
                         {event.summary ?? event.action ?? "received"}
                       </span>
-                      <Badge
-                        variant="outline"
-                        className="border-[#d0d7de] bg-white text-[#57606a]"
-                      >
-                        {event.event}
-                      </Badge>
+                      <Badge variant="outline">{event.event}</Badge>
                     </div>
-                    <div className="mt-1 truncate text-sm font-semibold text-[#0969da]">
+                    <div className="mt-1 truncate text-sm font-semibold text-primary">
                       {event.title ?? event.repository?.fullName ?? "Webhook event"}
                     </div>
-                    <div className="mt-1 text-xs text-[#57606a]">
+                    <div className="mt-1 text-xs text-muted-foreground">
                       {event.repository?.fullName ?? selectedRepository?.fullName}
                     </div>
                   </div>
@@ -769,9 +769,9 @@ export function GitHubWorkspace() {
               ))
             ) : (
               <div className="grid place-items-center gap-2 px-6 py-12 text-center">
-                <Inbox className="size-8 text-[#57606a]" />
+                <Inbox className="size-8 text-muted-foreground" />
                 <div className="text-sm font-semibold">No activity yet</div>
-                <div className="max-w-sm text-sm text-[#57606a]">
+                <div className="max-w-sm text-sm text-muted-foreground">
                   Once GitHub sends push, PR, issue, or comment webhooks, they
                   will appear here as a feed.
                 </div>
@@ -784,10 +784,10 @@ export function GitHubWorkspace() {
           <div className={panelHeaderClass}>
             <div>
               <div className="flex items-center gap-2 text-sm font-semibold">
-                <GitPullRequest className="size-4 text-[#8250df]" />
+                <GitPullRequest className="size-4 text-primary" />
                 Pull request review
               </div>
-              <div className="text-xs text-[#57606a]">
+              <div className="text-xs text-muted-foreground">
                 Browse files, switch diff mode, and comment on selected lines
               </div>
             </div>
@@ -843,12 +843,12 @@ export function GitHubWorkspace() {
             </div>
 
             {pullRequestQuery.data ? (
-              <div className="flex items-center justify-between gap-3 rounded-md border border-[#d0d7de] bg-[#f6f8fa] p-3 text-sm">
+              <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted p-3 text-sm">
                 <div className="min-w-0">
                   <div className="truncate font-semibold">
                     {pullRequestQuery.data.pullRequest.title}
                   </div>
-                  <div className="text-[#57606a]">
+                  <div className="text-muted-foreground">
                     {pullRequestQuery.data.pullRequest.base.ref} {"<-"}{" "}
                     {pullRequestQuery.data.pullRequest.head.ref}
                   </div>
@@ -862,9 +862,9 @@ export function GitHubWorkspace() {
 
             <div className="grid gap-4 xl:grid-cols-[220px_1fr]">
               <aside className="xl:sticky xl:top-[72px] xl:self-start">
-                <div className="overflow-hidden rounded-md border border-[#d0d7de]">
-                  <div className="flex items-center gap-2 border-b border-[#d0d7de] bg-[#f6f8fa] px-3 py-2 text-sm font-semibold">
-                    <PanelLeft className="size-4 text-[#57606a]" />
+                <div className="overflow-hidden rounded-md border border-border">
+                  <div className="flex items-center gap-2 border-b border-border bg-muted px-3 py-2 text-sm font-semibold">
+                    <PanelLeft className="size-4 text-muted-foreground" />
                     Files changed
                   </div>
                   <div className="max-h-[480px] overflow-auto p-2">
@@ -873,23 +873,23 @@ export function GitHubWorkspace() {
                         <button
                           key={file.filename}
                           type="button"
-                          className={`grid w-full gap-1 rounded-md px-2 py-2 text-left text-xs transition hover:bg-[#f6f8fa] ${
-                            activeFile === file.filename ? "bg-[#ddf4ff]" : ""
+                          className={`grid w-full gap-1 rounded-md px-2 py-2 text-left text-xs transition hover:bg-muted ${
+                            activeFile === file.filename ? "bg-accent" : ""
                           }`}
                           onClick={() =>
                             scrollToFile({ index, filename: file.filename })
                           }
                         >
-                          <span className="truncate font-mono font-semibold text-[#0969da]">
+                          <span className="truncate font-mono font-semibold text-primary">
                             {file.filename}
                           </span>
-                          <span className="text-[#57606a]">
+                          <span className="text-muted-foreground">
                             +{file.additions} -{file.deletions}
                           </span>
                         </button>
                       ))
                     ) : (
-                      <div className="p-3 text-sm text-[#57606a]">
+                      <div className="p-3 text-sm text-muted-foreground">
                         Load a PR to see changed files.
                       </div>
                     )}
@@ -898,7 +898,7 @@ export function GitHubWorkspace() {
               </aside>
 
               <div className="grid min-w-0 gap-4">
-                <div className="grid gap-3 rounded-md border border-[#d0d7de] bg-[#f6f8fa] p-3">
+                <div className="grid gap-3 rounded-md border border-border bg-muted p-3">
                   <div className="grid gap-3 md:grid-cols-[1fr_1fr]">
                     <Label className={labelClass}>
                       Line reference
@@ -925,22 +925,21 @@ export function GitHubWorkspace() {
                   </div>
                   <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
                     {displayedReference ? (
-                      <div className="overflow-hidden rounded-md border border-[#d0d7de] bg-white">
-                        <div className="border-b border-[#d0d7de] bg-[#f6f8fa] px-3 py-2 font-mono text-xs text-[#57606a]">
+                      <div className="overflow-hidden rounded-md border border-border bg-card">
+                        <div className="border-b border-border bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">
                           {displayedReference}
                         </div>
-                        <pre className="max-h-48 overflow-auto p-3 text-xs leading-5 text-[#24292f]">
+                        <pre className="max-h-48 overflow-auto p-3 text-xs leading-5 text-foreground">
                           {snippet || "Selected lines"}
                         </pre>
                       </div>
                     ) : (
-                      <div className="rounded-md border border-dashed border-[#d0d7de] bg-white p-3 text-sm text-[#57606a]">
+                      <div className="rounded-md border border-dashed border-border bg-card p-3 text-sm text-muted-foreground">
                         No line selected
                       </div>
                     )}
                     <Button
                       type="button"
-                      className="bg-[#1f883d] text-white hover:bg-[#1a7f37]"
                       disabled={
                         !selectedRepository ||
                         !pullRequestQuery.data ||
@@ -955,13 +954,13 @@ export function GitHubWorkspace() {
                     </Button>
                   </div>
                   {publishReviewComment.error ? (
-                    <div className="rounded-md border border-[#cf222e]/30 bg-[#ffebe9] p-3 text-sm text-[#cf222e]">
+                    <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                       {publishReviewComment.error.message}
                     </div>
                   ) : null}
                   {publishReviewComment.data?.comment?.html_url ? (
                     <a
-                      className="text-sm font-medium text-[#0969da] underline"
+                      className="text-sm font-medium text-primary underline"
                       href={publishReviewComment.data.comment.html_url}
                       target="_blank"
                       rel="noreferrer"
@@ -972,7 +971,7 @@ export function GitHubWorkspace() {
                 </div>
 
                 {pullRequestQuery.isError ? (
-                  <div className="rounded-md border border-[#cf222e]/30 bg-[#ffebe9] p-3 text-sm text-[#cf222e]">
+                  <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                     {pullRequestQuery.error.message}
                   </div>
                 ) : null}
@@ -981,14 +980,14 @@ export function GitHubWorkspace() {
                   <section
                     key={file.filename}
                     id={repositoryFileId(index)}
-                    className="scroll-mt-20 overflow-hidden rounded-md border border-[#d0d7de] bg-white"
+                    className="scroll-mt-20 overflow-hidden rounded-md border border-border bg-card"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d0d7de] bg-[#f6f8fa] px-3 py-2">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted px-3 py-2">
                       <div className="min-w-0">
                         <div className="truncate font-mono text-sm font-semibold">
                           {file.filename}
                         </div>
-                        <div className="text-xs text-[#57606a]">
+                        <div className="text-xs text-muted-foreground">
                           {file.status} · +{file.additions} -{file.deletions}
                         </div>
                       </div>
@@ -1007,7 +1006,7 @@ export function GitHubWorkspace() {
                         </table>
                       </div>
                     ) : (
-                      <div className="p-4 text-sm text-[#57606a]">
+                      <div className="p-4 text-sm text-muted-foreground">
                         GitHub did not include a textual patch for this file.
                       </div>
                     )}
@@ -1015,7 +1014,7 @@ export function GitHubWorkspace() {
                 ))}
 
                 {parsedFiles.length ? null : (
-                  <div className="rounded-md border border-dashed border-[#d0d7de] bg-white p-6 text-sm text-[#57606a]">
+                  <div className="rounded-md border border-dashed border-border bg-card p-6 text-sm text-muted-foreground">
                     Enter a PR number to load changed files and begin review.
                   </div>
                 )}
@@ -1029,12 +1028,10 @@ export function GitHubWorkspace() {
         <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <MessageSquarePlus className="size-4 text-[#57606a]" />
+              <MessageSquarePlus className="size-4 text-muted-foreground" />
               New
             </div>
-            <Badge variant="outline" className="border-[#d0d7de] bg-white">
-              Markdown
-            </Badge>
+            <Badge variant="outline">Markdown</Badge>
           </div>
           <div className="grid gap-3 p-3">
             <div className="grid gap-3">
@@ -1187,7 +1184,6 @@ export function GitHubWorkspace() {
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 type="button"
-                className="bg-[#1f883d] text-white hover:bg-[#1a7f37]"
                 disabled={!selectedRepository || publishAction.isPending}
                 onClick={() => publishAction.mutate()}
               >
@@ -1196,7 +1192,7 @@ export function GitHubWorkspace() {
               </Button>
               {publishAction.data?.githubUrl ? (
                 <a
-                  className="text-sm font-medium text-[#0969da] underline"
+                  className="text-sm font-medium text-primary underline"
                   href={publishAction.data.githubUrl}
                   target="_blank"
                   rel="noreferrer"
@@ -1206,7 +1202,7 @@ export function GitHubWorkspace() {
               ) : null}
             </div>
             {publishAction.error ? (
-              <div className="rounded-md border border-[#cf222e]/30 bg-[#ffebe9] p-3 text-sm text-[#cf222e]">
+              <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                 {publishAction.error.message}
               </div>
             ) : null}
@@ -1216,22 +1212,22 @@ export function GitHubWorkspace() {
         <Card className={panelClass}>
           <div className={panelHeaderClass}>
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <Star className="size-4 text-[#57606a]" />
+              <Star className="size-4 text-muted-foreground" />
               Shortcuts
             </div>
           </div>
           <div className="grid gap-2 p-3 text-sm">
-            <a className="text-[#0969da] hover:underline" href="#top">
+            <a className="text-primary hover:underline" href="#top">
               Dashboard
             </a>
             <button
               type="button"
-              className="text-left text-[#0969da] hover:underline"
+              className="text-left text-primary hover:underline"
               onClick={() => eventsQuery.refetch()}
             >
               Refresh feed
             </button>
-            <div className="flex items-center gap-2 text-[#57606a]">
+            <div className="flex items-center gap-2 text-muted-foreground">
               <Code2 className="size-4" />
               {selectedRepository?.fullName ?? "No repository selected"}
             </div>

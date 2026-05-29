@@ -39,7 +39,6 @@ export type StudyMemberPresence = {
   nickname: string;
   role: string;
   status: "online" | "idle" | "offline";
-  avatarColor: string;
   githubLogin?: string;
   githubVisible: boolean;
 };
@@ -242,7 +241,6 @@ export const mockPartyDetails: StudyPartyDetail[] = [
         nickname: "river",
         role: "owner",
         status: "online",
-        avatarColor: "#0969da",
         githubLogin: "river-dev",
         githubVisible: false,
       },
@@ -251,7 +249,6 @@ export const mockPartyDetails: StudyPartyDetail[] = [
         nickname: "miso",
         role: "member",
         status: "idle",
-        avatarColor: "#1f883d",
         githubLogin: "miso-code",
         githubVisible: true,
       },
@@ -260,7 +257,6 @@ export const mockPartyDetails: StudyPartyDetail[] = [
         nickname: "nox",
         role: "member",
         status: "online",
-        avatarColor: "#8250df",
         githubVisible: false,
       },
     ],
