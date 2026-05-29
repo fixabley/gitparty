@@ -287,17 +287,24 @@ model PartyInvite {
 }
 
 model PartyRepository {
-  id           String   @id @default(cuid())
-  partyId      String
-  repositoryId String
-  addedById    String?
-  createdAt    DateTime @default(now())
+  id                    String                @id @default(cuid())
+  partyId               String
+  repositoryId          String
+  addedById             String?
+  status                PartyRepositoryStatus @default(REQUESTED)
+  appInstallationId     Int?
+  installUrl            String?
+  activatedAt           DateTime?
+  lastInstallationError String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
 
   party      Party            @relation(fields: [partyId], references: [id], onDelete: Cascade)
   repository GitHubRepository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
   addedBy    User?            @relation("PartyRepositoryAddedBy", fields: [addedById], references: [id], onDelete: SetNull)
 
   @@unique([partyId, repositoryId])
+  @@index([partyId, status])
   @@index([repositoryId])
 }
 
@@ -426,6 +433,13 @@ enum PartyActivityType {
   REVIEW_COMMENT
   PLATFORM_COMMENT
   REPOSITORY
+}
+
+enum PartyRepositoryStatus {
+  REQUESTED
+  PENDING_INSTALLATION
+  ACTIVE
+  INSTALLATION_FAILED
 }
 
 enum GitHubLinkAccessReason {
