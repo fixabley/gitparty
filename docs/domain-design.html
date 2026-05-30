@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reverseed Domain Design</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --background: #ffffff;
+        --foreground: #18181b;
+        --muted: #f4f4f5;
+        --muted-foreground: #71717a;
+        --card: #ffffff;
+        --border: #e4e4e7;
+        --primary: #18181b;
+        --primary-foreground: #fafafa;
+        --accent: #f4f4f5;
+        --destructive: #dc2626;
+        --radius: 10px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color-scheme: dark;
+          --background: #09090b;
+          --foreground: #fafafa;
+          --muted: #27272a;
+          --muted-foreground: #a1a1aa;
+          --card: #18181b;
+          --border: #27272a;
+          --primary: #fafafa;
+          --primary-foreground: #18181b;
+          --accent: #27272a;
+          --destructive: #f87171;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--foreground);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--border);
+        background: color-mix(in srgb, var(--background) 92%, transparent);
+        backdrop-filter: blur(10px);
+      }
+
+      .toolbar-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        width: min(1180px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 10px 0;
+      }
+
+      .toolbar-title {
+        margin-right: auto;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      button {
+        min-height: 32px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--card);
+        color: var(--foreground);
+        padding: 6px 10px;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button.primary {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+
+      button:hover {
+        background: var(--accent);
+      }
+
+      button.primary:hover {
+        opacity: 0.88;
+      }
+
+      .status {
+        min-width: 140px;
+        color: var(--muted-foreground);
+        font-size: 12px;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      code {
+        border-radius: 6px;
+        background: var(--muted);
+        padding: 2px 5px;
+        font-family:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.92em;
+      }
+
+      .page {
+        width: min(1180px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 64px;
+      }
+
+      [contenteditable="true"] {
+        outline: none;
+      }
+
+      [contenteditable="true"]:focus {
+        box-shadow: inset 0 0 0 2px var(--primary);
+      }
+
+      .hero {
+        display: grid;
+        gap: 14px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 28px;
+      }
+
+      .eyebrow {
+        color: var(--muted-foreground);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      h1 {
+        font-size: clamp(34px, 5vw, 58px);
+        letter-spacing: -0.02em;
+      }
+
+      h2 {
+        margin-top: 38px;
+        font-size: 26px;
+      }
+
+      h3 {
+        font-size: 17px;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      .lead {
+        max-width: 780px;
+        color: var(--muted-foreground);
+        font-size: 17px;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 2px 10px;
+        background: var(--card);
+        color: var(--muted-foreground);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .section {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--card);
+        padding: 16px;
+      }
+
+      .card.muted {
+        background: var(--muted);
+      }
+
+      .card-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .tag {
+        border-radius: 999px;
+        background: var(--primary);
+        color: var(--primary-foreground);
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+      }
+
+      li + li {
+        margin-top: 4px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--border);
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--muted);
+        font-weight: 700;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .diagram {
+        display: grid;
+        gap: 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--card);
+        padding: 16px;
+      }
+
+      .layer {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .layer-name {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: var(--primary);
+        color: var(--primary-foreground);
+        padding: 12px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .layer-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        border-radius: 8px;
+        background: var(--muted);
+        padding: 12px;
+      }
+
+      .node {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--card);
+        padding: 8px 10px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .flow {
+        display: grid;
+        gap: 8px;
+        counter-reset: step;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 10px;
+        align-items: start;
+      }
+
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: var(--primary);
+        color: var(--primary-foreground);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .note {
+        border-left: 4px solid var(--primary);
+        background: var(--muted);
+        padding: 12px 14px;
+        color: var(--muted-foreground);
+      }
+
+      .danger {
+        border-left-color: var(--destructive);
+      }
+
+      @media (max-width: 820px) {
+        .grid.two,
+        .grid.three {
+          grid-template-columns: 1fr;
+        }
+
+        .layer {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar" contenteditable="false">
+      <div class="toolbar-inner">
+        <div class="toolbar-title">Reverseed Domain Design</div>
+        <button type="button" class="primary" data-action="save-draft">초안 저장</button>
+        <button type="button" data-action="save-file">HTML 파일 저장</button>
+        <button type="button" data-action="copy-request">변경요청 복사</button>
+        <button type="button" data-action="reset">초안 초기화</button>
+        <div class="status" id="editor-status">편집 가능</div>
+      </div>
+    </div>
+    <main
+      id="editable-document"
+      class="page"
+      contenteditable="true"
+      spellcheck="false"
+      data-filename="domain-design-edited.html"
+      data-storage-key="reverseed-doc-domain-design"
+    >
+      <section class="hero">
+        <div class="eyebrow">Reverseed Domain Design</div>
+        <h1>스터디 파티 플랫폼 도메인 설계</h1>
+        <p class="lead">
+          GitHub 계정은 로그인과 연동에 사용하지만, 파티 안에서는 파티별
+          닉네임과 프로필을 중심으로 활동을 표시하는 privacy-first 스터디
+          플랫폼 설계 문서입니다.
+        </p>
+        <div class="meta">
+          <span class="pill">기준 날짜: 2026-05-30</span>
+          <span class="pill">소스: Prisma + Server Domain</span>
+          <span class="pill">스타일: standalone HTML</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>1. 설계 목표</h2>
+        <div class="grid three">
+          <article class="card">
+            <div class="card-title">
+              <h3>익명성</h3>
+              <span class="tag">Privacy</span>
+            </div>
+            <p>
+              사용자는 GitHub OAuth로 로그인하지만 파티 내부에서는
+              <code>PartyProfile.nickname</code>을 기본 표시명으로 사용합니다.
+              GitHub 원본 링크와 계정 정보는 명시된 조건에서만 노출합니다.
+            </p>
+          </article>
+          <article class="card">
+            <div class="card-title">
+              <h3>스터디 단위</h3>
+              <span class="tag">Party</span>
+            </div>
+            <p>
+              <code>Party</code>는 공개/비공개, 태그, 대문 Markdown, 멤버십,
+              초대, 참여 신청을 소유합니다. <code>parentId</code>로 1-depth
+              mini party를 표현합니다.
+            </p>
+          </article>
+          <article class="card">
+            <div class="card-title">
+              <h3>GitHub 활동 피드</h3>
+              <span class="tag">Webhook</span>
+            </div>
+            <p>
+              등록된 GitHub repository의 webhook event를 파티 활동으로
+              변환하고 홈 피드와 파티 피드에 반영합니다.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>2. 헥사고날 구조</h2>
+        <div class="diagram">
+          <div class="layer">
+            <div class="layer-name">Interface</div>
+            <div class="layer-items">
+              <span class="node">Next.js Pages</span>
+              <span class="node">Route Handlers</span>
+              <span class="node">Webhook Endpoint</span>
+              <span class="node">GitHub UI</span>
+            </div>
+          </div>
+          <div class="layer">
+            <div class="layer-name">Application</div>
+            <div class="layer-items">
+              <span class="node">createStudyActivityService</span>
+              <span class="node">RegisterPartyRepositoryCommand</span>
+              <span class="node">ActivatePartyRepositoryCommand</span>
+              <span class="node">IngestWebhookActivitiesCommand</span>
+            </div>
+          </div>
+          <div class="layer">
+            <div class="layer-name">Domain</div>
+            <div class="layer-items">
+              <span class="node">Visibility Policies</span>
+              <span class="node">Repository Status Transition</span>
+              <span class="node">GitHub Comment Signature</span>
+              <span class="node">Activity Type Resolution</span>
+            </div>
+          </div>
+          <div class="layer">
+            <div class="layer-name">Infrastructure</div>
+            <div class="layer-items">
+              <span class="node">PrismaStudyRepository</span>
+              <span class="node">Prisma Client</span>
+              <span class="node">GitHub REST API</span>
+              <span class="node">Auth.js Session</span>
+            </div>
+          </div>
+        </div>
+        <p class="note">
+          현재 서버 코드는 route handler에서 사용자/요청 검증을 수행하고,
+          webhook ingestion과 repository registration은 application service와
+          port를 통해 Prisma 구현체로 위임합니다.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>3. Bounded Context</h2>
+        <div class="grid two">
+          <article class="card">
+            <div class="card-title">
+              <h3>Identity & Relationship</h3>
+              <span class="tag">User</span>
+            </div>
+            <ul>
+              <li><code>User</code>: Auth.js 사용자, GitHub OAuth 계정의 소유자</li>
+              <li><code>Account</code>, <code>Session</code>: 인증 세션</li>
+              <li><code>Friendship</code>: 친구 관계, 양방향 승인 상태</li>
+              <li><code>CloseFriend</code>: 단방향 친한 친구 표시</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="card-title">
+              <h3>Party Collaboration</h3>
+              <span class="tag">Party</span>
+            </div>
+            <ul>
+              <li><code>Party</code>: 파티와 mini party의 aggregate root</li>
+              <li><code>PartyMembership</code>: 역할과 참여 상태</li>
+              <li><code>PartyProfile</code>: 파티별 닉네임/아바타/상태</li>
+              <li><code>PartyJoinRequest</code>, <code>PartyInvite</code>: 공개 신청과 비공개 초대</li>
+              <li><code>Tag</code>, <code>PartyTag</code>: 공개 검색/추천 기준</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="card-title">
+              <h3>GitHub Integration</h3>
+              <span class="tag">GitHub</span>
+            </div>
+            <ul>
+              <li><code>GitHubRepository</code>: owner/name/fullName 기준 repository</li>
+              <li><code>PartyRepository</code>: 파티와 repository 연결 및 GitHub App 설치 상태</li>
+              <li><code>GitHubWebhookEvent</code>: delivery id 기준 원본 webhook 저장</li>
+              <li><code>GitHubDraft</code>: issue, PR, comment, commit 작성 초안</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="card-title">
+              <h3>Activity & Comment</h3>
+              <span class="tag">Feed</span>
+            </div>
+            <ul>
+              <li><code>PartyActivity</code>: 파티 피드와 홈 피드에 표시되는 활동</li>
+              <li><code>PlatformComment</code>: 플랫폼에서 작성한 댓글과 GitHub 반영 결과</li>
+              <li><code>ActivityGitHubLinkAccess</code>: GitHub 원본 링크 노출 권한 기록</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>4. 핵심 엔티티 관계</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>관계</th>
+              <th>설명</th>
+              <th>주요 제약</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>User</code> -> <code>PartyMembership</code> -> <code>Party</code></td>
+              <td>사용자가 파티에 소속되는 관계입니다.</td>
+              <td><code>@@unique([partyId, userId])</code></td>
+            </tr>
+            <tr>
+              <td><code>User</code> -> <code>PartyProfile</code> -> <code>Party</code></td>
+              <td>파티 안에서 보여줄 닉네임과 프로필입니다.</td>
+              <td><code>@@unique([partyId, userId])</code></td>
+            </tr>
+            <tr>
+              <td><code>Party</code> -> <code>Party</code></td>
+              <td><code>parentId</code>로 mini party를 표현합니다.</td>
+              <td>현재 정책상 mini party는 parent party 멤버만 참여 가능</td>
+            </tr>
+            <tr>
+              <td><code>Party</code> -> <code>PartyRepository</code> -> <code>GitHubRepository</code></td>
+              <td>파티가 GitHub repository를 등록 요청하고 App 설치 후 활성화합니다.</td>
+              <td><code>@@unique([partyId, repositoryId])</code></td>
+            </tr>
+            <tr>
+              <td><code>GitHubWebhookEvent</code> -> <code>PartyActivity</code></td>
+              <td>하나의 webhook event가 repository를 등록한 파티별 활동으로 변환됩니다.</td>
+              <td><code>@@unique([partyId, githubWebhookEventId])</code></td>
+            </tr>
+            <tr>
+              <td><code>PartyActivity</code> -> <code>PlatformComment</code></td>
+              <td>플랫폼 댓글은 파티 활동에 연결되고 필요하면 GitHub에도 작성됩니다.</td>
+              <td>작성 시 파티 활성 멤버십과 GitHub App 설치 필요</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>5. Aggregate와 불변 조건</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>Party Aggregate</h3>
+            <ul>
+              <li>root: <code>Party</code></li>
+              <li>소유: membership, profile, join request, invite, tag relation</li>
+              <li>비공개 party는 초대 링크나 멤버십 없이는 탐색 불가</li>
+              <li>mini party는 parent party 멤버만 참여 가능</li>
+              <li>party 생성자는 OWNER membership과 기본 profile을 동시에 생성</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Repository Registration Aggregate</h3>
+            <ul>
+              <li>root: <code>PartyRepository</code></li>
+              <li>등록 요청과 GitHub App 설치 완료를 분리</li>
+              <li>상태: <code>REQUESTED</code> -> <code>PENDING_INSTALLATION</code> -> <code>ACTIVE</code></li>
+              <li>설치 실패 시 <code>INSTALLATION_FAILED</code>로 전이</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Activity Aggregate</h3>
+            <ul>
+              <li>root: <code>PartyActivity</code></li>
+              <li>webhook delivery는 파티별로 한 번만 activity로 반영</li>
+              <li>원본 GitHub URL은 policy를 통과한 사용자에게만 노출</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Relationship Aggregate</h3>
+            <ul>
+              <li>root: <code>Friendship</code>, <code>CloseFriend</code></li>
+              <li>친구는 양방향 승인</li>
+              <li>친한 친구 표시는 단방향 가능</li>
+              <li>A가 B를 친한 친구로 등록하면 B에게 A의 GitHub 계정 공개</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>6. 도메인 정책</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>정책 함수</th>
+              <th>입력</th>
+              <th>판단</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>canRevealGitHubIdentity</code></td>
+              <td>viewer, subject, friendship, close friend</td>
+              <td>본인이거나 친구 관계에서 subject가 viewer를 close friend로 지정한 경우 공개</td>
+            </tr>
+            <tr>
+              <td><code>canRevealGitHubActivityLink</code></td>
+              <td>activity author, GitHub actor match, repository registrant, close friend</td>
+              <td>작성자, webhook 당사자, repository 등록자, actor의 close friend에게 공개</td>
+            </tr>
+            <tr>
+              <td><code>canDiscoverParty</code></td>
+              <td>visibility, membership, invite token</td>
+              <td>PUBLIC은 탐색 가능, PRIVATE은 멤버 또는 초대 토큰 필요</td>
+            </tr>
+            <tr>
+              <td><code>canJoinMiniParty</code></td>
+              <td>visibility, parent membership, invite token</td>
+              <td>parent party 멤버가 아니면 불가. 비공개 mini party는 초대 토큰 필요</td>
+            </tr>
+            <tr>
+              <td><code>nextRepositoryRegistrationStatus</code></td>
+              <td>currentStatus, appInstalled, installationFailed</td>
+              <td>GitHub App 설치 여부에 따라 repository registration 상태 전이</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>7. 주요 유스케이스 흐름</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>파티 생성</h3>
+            <div class="flow">
+              <div class="step">사용자가 title, topic, capacity, visibility, tags, nickname을 입력합니다.</div>
+              <div class="step"><code>slugify</code>로 고유 slug를 생성합니다.</div>
+              <div class="step"><code>Party</code>, OWNER <code>PartyMembership</code>, <code>PartyProfile</code>, tags를 transaction성 create로 생성합니다.</div>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Mini party 생성/참여</h3>
+            <div class="flow">
+              <div class="step">parent party가 존재하고 1-depth root party인지 확인합니다.</div>
+              <div class="step">요청자가 parent party ACTIVE 멤버인지 검증합니다.</div>
+              <div class="step">PUBLIC mini party는 parent 멤버가 바로 참여 가능하고 PRIVATE은 초대 토큰이 필요합니다.</div>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Repository 등록</h3>
+            <div class="flow">
+              <div class="step">파티 ACTIVE 멤버가 <code>owner/repo</code> 또는 GitHub URL을 입력합니다.</div>
+              <div class="step"><code>GitHubRepository</code> metadata를 upsert합니다.</div>
+              <div class="step"><code>PartyRepository</code>를 <code>PENDING_INSTALLATION</code>으로 만들고 GitHub App install URL을 반환합니다.</div>
+              <div class="step">설치 완료 시 appInstallationId를 저장하고 <code>ACTIVE</code>로 전환합니다.</div>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Webhook -> Activity</h3>
+            <div class="flow">
+              <div class="step">GitHub signature와 delivery id를 검증합니다.</div>
+              <div class="step"><code>GitHubWebhookEvent</code>를 delivery id 기준 upsert합니다.</div>
+              <div class="step">repository에 연결된 ACTIVE <code>PartyRepository</code>를 조회합니다.</div>
+              <div class="step">파티별 <code>PartyActivity</code>를 upsert해 홈/파티 피드에 표시합니다.</div>
+            </div>
+          </article>
+          <article class="card">
+            <h3>플랫폼 댓글 -> GitHub 댓글</h3>
+            <div class="flow">
+              <div class="step">작성자가 파티 ACTIVE 멤버인지 확인합니다.</div>
+              <div class="step">활동이 GitHub issue/PR number와 repository를 가지고 있는지 확인합니다.</div>
+              <div class="step">GitHub App installation이 ACTIVE인지 확인합니다.</div>
+              <div class="step"><code>Posted from Reverseed by [nickname](platformUrl)</code> 서명을 붙여 GitHub App으로 댓글을 작성합니다.</div>
+              <div class="step"><code>PlatformComment</code>에 platform/GitHub URL과 comment id를 저장합니다.</div>
+            </div>
+          </article>
+          <article class="card">
+            <h3>GitHub 링크 노출</h3>
+            <div class="flow">
+              <div class="step">activity author, webhook actor match, repository registrant 여부를 확인합니다.</div>
+              <div class="step">친구 관계와 close friend 지정 방향을 확인합니다.</div>
+              <div class="step">통과한 사용자에게만 원본 GitHub URL을 표시하고, 필요하면 <code>ActivityGitHubLinkAccess</code>에 근거를 저장합니다.</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>8. API 경계</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>역할</th>
+              <th>도메인 경계</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>GET /api/parties</code></td>
+              <td>내가 속한 party 목록 조회</td>
+              <td>Membership 기준 홈 좌측 party 목록</td>
+            </tr>
+            <tr>
+              <td><code>POST /api/parties</code></td>
+              <td>party 또는 mini party 생성</td>
+              <td>Party aggregate 생성, mini party parent membership 검증</td>
+            </tr>
+            <tr>
+              <td><code>POST /api/parties/[partySlug]/repositories</code></td>
+              <td>party repository 등록 요청</td>
+              <td>PartyRepository registration aggregate</td>
+            </tr>
+            <tr>
+              <td><code>POST /api/github/webhook</code></td>
+              <td>GitHub webhook 수신</td>
+              <td>WebhookEvent 저장 후 PartyActivity 생성</td>
+            </tr>
+            <tr>
+              <td><code>POST /api/parties/[partySlug]/activities/[activityId]/comments</code></td>
+              <td>플랫폼 댓글 작성 및 GitHub 반영</td>
+              <td>PlatformComment + GitHub App comment</td>
+            </tr>
+            <tr>
+              <td><code>/api/github/actions</code></td>
+              <td>Markdown 기반 issue, PR, comment, commit 작성</td>
+              <td>GitHubDraft와 GitHub REST API 경계</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>9. 상태와 Enum</h2>
+        <div class="grid three">
+          <article class="card muted">
+            <h3>Party</h3>
+            <p><code>PartyVisibility</code>: PUBLIC, PRIVATE</p>
+            <p><code>PartyRole</code>: OWNER, MODERATOR, MEMBER</p>
+            <p><code>PartyMembershipStatus</code>: ACTIVE, PENDING, LEFT, BANNED</p>
+          </article>
+          <article class="card muted">
+            <h3>Repository</h3>
+            <p><code>PartyRepositoryStatus</code>: REQUESTED, PENDING_INSTALLATION, ACTIVE, INSTALLATION_FAILED</p>
+            <p><code>GitHubDraftStatus</code>: DRAFT, SENT, FAILED</p>
+          </article>
+          <article class="card muted">
+            <h3>Activity</h3>
+            <p><code>PartyActivityType</code>: PUSH, PULL_REQUEST, ISSUE, ISSUE_COMMENT, COMMIT_COMMENT, REVIEW_COMMENT, PLATFORM_COMMENT, REPOSITORY</p>
+            <p><code>GitHubLinkAccessReason</code>: ACTOR, PARTY_MEMBER_MATCH, CLOSE_FRIEND, WEBHOOK_SUBJECT</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>10. 현재 코드에서 더 분리하면 좋은 지점</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>Party application service</h3>
+            <p>
+              party 생성, mini party 생성, join request 승인/거절은 route handler에
+              로직이 남아 있습니다. 다음 단계에서는 <code>PartyService</code>와
+              <code>PartyRepositoryPort</code>로 분리하는 편이 좋습니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Link visibility materialization</h3>
+            <p>
+              <code>ActivityGitHubLinkAccess</code> 모델은 준비되어 있으나 모든
+              유스케이스에서 materialize되지는 않았습니다. webhook actor와 party
+              member의 GitHub 계정 매칭 규칙을 별도 policy/service로 분리할 수 있습니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Invite lifecycle</h3>
+            <p>
+              초대 링크의 만료, 사용 횟수 증가, revoked 처리 정책을
+              <code>PartyInvite</code> aggregate policy로 명시하면 비공개 파티
+              접근 제어를 더 안정적으로 유지할 수 있습니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3>GitHub App installation callback</h3>
+            <p>
+              repository 등록 요청과 설치 완료는 분리되어 있습니다. 설치 callback
+              또는 수동 활성화 route에서 <code>activatePartyRepository</code>를
+              호출하는 흐름을 완성해야 합니다.
+            </p>
+          </article>
+        </div>
+        <p class="note danger">
+          이 문서는 현재 구현 기준의 도메인 설계 산출물입니다. 운영 전에는
+          GitHub 계정 매칭, 친구/친한친구 변경 시 권한 재계산, private party
+          URL 직접 접근 정책을 추가 테스트하는 것이 좋습니다.
+        </p>
+      </section>
+    </main>
+    <script>
+      (() => {
+        const editable = document.getElementById("editable-document");
+        const status = document.getElementById("editor-status");
+        const storageKey = editable.dataset.storageKey;
+        const fileName = editable.dataset.filename;
+        const originalHtml = editable.innerHTML;
+
+        function setStatus(message) {
+          status.textContent = message;
+          window.setTimeout(() => {
+            if (status.textContent === message) {
+              status.textContent = "편집 가능";
+            }
+          }, 2500);
+        }
+
+        function buildHtml() {
+          return "<!doctype html>\n" + document.documentElement.outerHTML;
+        }
+
+        function downloadHtml(html) {
+          const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const anchor = document.createElement("a");
+          anchor.href = url;
+          anchor.download = fileName;
+          anchor.click();
+          URL.revokeObjectURL(url);
+        }
+
+        async function saveFile() {
+          const html = buildHtml();
+          if ("showSaveFilePicker" in window) {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: fileName,
+              types: [
+                {
+                  description: "HTML document",
+                  accept: { "text/html": [".html"] },
+                },
+              ],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(html);
+            await writable.close();
+            setStatus("HTML 저장 완료");
+            return;
+          }
+
+          downloadHtml(html);
+          setStatus("HTML 다운로드 완료");
+        }
+
+        function saveDraft() {
+          localStorage.setItem(storageKey, editable.innerHTML);
+          setStatus("초안 저장 완료");
+        }
+
+        async function copyRequest() {
+          const request = [
+            "다음 문서 수정안을 Reverseed 코드와 설계에 반영해줘.",
+            "",
+            `문서: ${document.title}`,
+            "",
+            editable.innerText.trim(),
+          ].join("\n");
+          await navigator.clipboard.writeText(request);
+          setStatus("변경요청 복사 완료");
+        }
+
+        function resetDraft() {
+          if (!window.confirm("저장된 초안을 지우고 원본 문서로 되돌릴까요?")) {
+            return;
+          }
+
+          localStorage.removeItem(storageKey);
+          editable.innerHTML = originalHtml;
+          setStatus("초안 초기화 완료");
+        }
+
+        const draft = localStorage.getItem(storageKey);
+        if (draft) {
+          editable.innerHTML = draft;
+          setStatus("저장된 초안 불러옴");
+        }
+
+        document.addEventListener("click", async (event) => {
+          const button = event.target.closest("button[data-action]");
+          if (!button) {
+            return;
+          }
+
+          try {
+            if (button.dataset.action === "save-draft") {
+              saveDraft();
+            } else if (button.dataset.action === "save-file") {
+              await saveFile();
+            } else if (button.dataset.action === "copy-request") {
+              await copyRequest();
+            } else if (button.dataset.action === "reset") {
+              resetDraft();
+            }
+          } catch (error) {
+            console.error(error);
+            setStatus("작업 실패");
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

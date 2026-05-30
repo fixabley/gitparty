@@ -1,0 +1,456 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id                   String                     @id @default(cuid())
+  name                 String?
+  email                String?                    @unique
+  emailVerified        DateTime?
+  image                String?
+  accounts             Account[]
+  sessions             Session[]
+  authenticators       Authenticator[]
+  createdParties       Party[]                    @relation("PartyCreatedBy")
+  partyMemberships     PartyMembership[]
+  partyProfiles        PartyProfile[]
+  partyJoinRequests    PartyJoinRequest[]
+  createdInvites       PartyInvite[]              @relation("PartyInviteCreatedBy")
+  addedRepositories    PartyRepository[]          @relation("PartyRepositoryAddedBy")
+  authoredActivities   PartyActivity[]            @relation("PartyActivityActor")
+  authoredComments     PlatformComment[]
+  linkAccess           ActivityGitHubLinkAccess[]
+  friendshipsRequested Friendship[]               @relation("FriendshipRequester")
+  friendshipsReceived  Friendship[]               @relation("FriendshipAddressee")
+  closeFriends         CloseFriend[]              @relation("CloseFriendOwner")
+  closeFriendOf        CloseFriend[]              @relation("CloseFriendTarget")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model GitHubRepository {
+  id            String   @id @default(cuid())
+  owner         String
+  name          String
+  fullName      String   @unique
+  htmlUrl       String?
+  defaultBranch String?
+  webhookId     Int?
+  webhookUrl    String?
+  webhookActive Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  events            GitHubWebhookEvent[]
+  drafts            GitHubDraft[]
+  partyRepositories PartyRepository[]
+  activities        PartyActivity[]
+
+  @@index([owner, name])
+}
+
+model GitHubWebhookEvent {
+  id           String            @id @default(cuid())
+  repositoryId String?
+  repository   GitHubRepository? @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+  deliveryId   String            @unique
+  event        String
+  action       String?
+  sender       String?
+  title        String?
+  summary      String?
+  ref          String?
+  sha          String?
+  htmlUrl      String?
+  rawPayload   String
+  receivedAt   DateTime          @default(now())
+  activities   PartyActivity[]
+
+  @@index([event])
+  @@index([receivedAt])
+}
+
+model GitHubDraft {
+  id            String            @id @default(cuid())
+  repositoryId  String
+  repository    GitHubRepository  @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  type          GitHubDraftType
+  title         String?
+  body          String?
+  targetNumber  Int?
+  targetSha     String?
+  baseBranch    String?
+  headBranch    String?
+  path          String?
+  commitMessage String?
+  fileContent   String?
+  status        GitHubDraftStatus @default(DRAFT)
+  githubUrl     String?
+  error         String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([repositoryId, type])
+  @@index([status])
+}
+
+enum GitHubDraftType {
+  ISSUE
+  PULL_REQUEST
+  COMMENT
+  COMMIT
+}
+
+enum GitHubDraftStatus {
+  DRAFT
+  SENT
+  FAILED
+}
+
+model Party {
+  id            String          @id @default(cuid())
+  parentId      String?
+  parent        Party?          @relation("PartyMiniParties", fields: [parentId], references: [id], onDelete: Cascade)
+  miniParties   Party[]         @relation("PartyMiniParties")
+  slug          String          @unique
+  title         String
+  topic         String
+  description   String?
+  visibility    PartyVisibility @default(PUBLIC)
+  capacity      Int
+  coverMarkdown String?
+  avatarUrl     String?
+  accentColor   String          @default("#0969da")
+  createdById   String?
+  createdBy     User?           @relation("PartyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  tags         PartyTag[]
+  memberships  PartyMembership[]
+  profiles     PartyProfile[]
+  joinRequests PartyJoinRequest[]
+  invites      PartyInvite[]
+  repositories PartyRepository[]
+  activities   PartyActivity[]
+  comments     PlatformComment[]
+
+  @@index([parentId])
+  @@index([visibility, updatedAt])
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  createdAt DateTime   @default(now())
+  parties   PartyTag[]
+}
+
+model PartyTag {
+  partyId String
+  tagId   String
+  party   Party  @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([partyId, tagId])
+}
+
+model PartyMembership {
+  id              String                @id @default(cuid())
+  partyId         String
+  userId          String
+  role            PartyRole             @default(MEMBER)
+  status          PartyMembershipStatus @default(ACTIVE)
+  notifyMentioned Boolean               @default(false)
+  joinedAt        DateTime?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  party Party @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([partyId, userId])
+  @@index([userId, status, updatedAt])
+}
+
+model PartyProfile {
+  id         String    @id @default(cuid())
+  partyId    String
+  userId     String
+  nickname   String
+  avatarUrl  String?
+  bio        String?
+  status     String?
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  party Party @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([partyId, userId])
+  @@index([partyId, nickname])
+}
+
+model PartyJoinRequest {
+  id        String                 @id @default(cuid())
+  partyId   String
+  userId    String
+  message   String?
+  status    PartyJoinRequestStatus @default(PENDING)
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+
+  party Party @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([partyId, userId])
+  @@index([status, createdAt])
+}
+
+model PartyInvite {
+  id          String    @id @default(cuid())
+  partyId     String
+  token       String    @unique
+  createdById String?
+  expiresAt   DateTime?
+  maxUses     Int?
+  uses        Int       @default(0)
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  party     Party @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  createdBy User? @relation("PartyInviteCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([partyId, createdAt])
+}
+
+model PartyRepository {
+  id                    String                @id @default(cuid())
+  partyId               String
+  repositoryId          String
+  addedById             String?
+  status                PartyRepositoryStatus @default(REQUESTED)
+  appInstallationId     Int?
+  installUrl            String?
+  activatedAt           DateTime?
+  lastInstallationError String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  party      Party            @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  repository GitHubRepository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  addedBy    User?            @relation("PartyRepositoryAddedBy", fields: [addedById], references: [id], onDelete: SetNull)
+
+  @@unique([partyId, repositoryId])
+  @@index([partyId, status])
+  @@index([repositoryId])
+}
+
+model PartyActivity {
+  id                   String            @id @default(cuid())
+  partyId              String
+  repositoryId         String?
+  githubWebhookEventId String?
+  actorUserId          String?
+  type                 PartyActivityType
+  title                String
+  summary              String
+  bodyMarkdown         String?
+  platformUrl          String?
+  githubUrl            String?
+  githubActorLogin     String?
+  githubNumber         Int?
+  githubSha            String?
+  createdAt            DateTime          @default(now())
+
+  party              Party                      @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  repository         GitHubRepository?          @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+  githubWebhookEvent GitHubWebhookEvent?        @relation(fields: [githubWebhookEventId], references: [id], onDelete: SetNull)
+  actorUser          User?                      @relation("PartyActivityActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  comments           PlatformComment[]
+  linkAccess         ActivityGitHubLinkAccess[]
+
+  @@unique([partyId, githubWebhookEventId])
+  @@index([partyId, createdAt])
+  @@index([repositoryId, createdAt])
+  @@index([githubWebhookEventId])
+}
+
+model ActivityGitHubLinkAccess {
+  id         String                 @id @default(cuid())
+  activityId String
+  userId     String
+  reason     GitHubLinkAccessReason
+  createdAt  DateTime               @default(now())
+
+  activity PartyActivity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, userId])
+  @@index([userId, createdAt])
+}
+
+model PlatformComment {
+  id               String   @id @default(cuid())
+  partyId          String
+  activityId       String
+  authorUserId     String
+  nicknameSnapshot String
+  bodyMarkdown     String
+  platformUrl      String?
+  githubUrl        String?
+  githubCommentId  String?
+  createdAt        DateTime @default(now())
+
+  party    Party         @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  activity PartyActivity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  author   User          @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
+
+  @@index([partyId, createdAt])
+  @@index([activityId, createdAt])
+}
+
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  addresseeId String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  requester User @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+}
+
+model CloseFriend {
+  id        String   @id @default(cuid())
+  ownerId   String
+  friendId  String
+  createdAt DateTime @default(now())
+
+  owner  User @relation("CloseFriendOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  friend User @relation("CloseFriendTarget", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, friendId])
+}
+
+enum PartyVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum PartyRole {
+  OWNER
+  MODERATOR
+  MEMBER
+}
+
+enum PartyMembershipStatus {
+  ACTIVE
+  PENDING
+  LEFT
+  BANNED
+}
+
+enum PartyJoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELED
+}
+
+enum PartyActivityType {
+  PUSH
+  PULL_REQUEST
+  ISSUE
+  ISSUE_COMMENT
+  COMMIT_COMMENT
+  REVIEW_COMMENT
+  PLATFORM_COMMENT
+  REPOSITORY
+}
+
+enum PartyRepositoryStatus {
+  REQUESTED
+  PENDING_INSTALLATION
+  ACTIVE
+  INSTALLATION_FAILED
+}
+
+enum GitHubLinkAccessReason {
+  ACTOR
+  PARTY_MEMBER_MATCH
+  CLOSE_FRIEND
+  WEBHOOK_SUBJECT
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
