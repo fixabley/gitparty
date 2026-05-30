@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reverseed Component Hierarchy</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --background: #ffffff;
+        --foreground: #18181b;
+        --muted: #f4f4f5;
+        --muted-foreground: #71717a;
+        --card: #ffffff;
+        --border: #e4e4e7;
+        --primary: #18181b;
+        --primary-foreground: #fafafa;
+        --accent: #f4f4f5;
+        --destructive: #dc2626;
+        --radius: 10px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color-scheme: dark;
+          --background: #09090b;
+          --foreground: #fafafa;
+          --muted: #27272a;
+          --muted-foreground: #a1a1aa;
+          --card: #18181b;
+          --border: #27272a;
+          --primary: #fafafa;
+          --primary-foreground: #18181b;
+          --accent: #27272a;
+          --destructive: #f87171;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--foreground);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--border);
+        background: color-mix(in srgb, var(--background) 92%, transparent);
+        backdrop-filter: blur(10px);
+      }
+
+      .toolbar-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        width: min(1180px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 10px 0;
+      }
+
+      .toolbar-title {
+        margin-right: auto;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      button {
+        min-height: 32px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--card);
+        color: var(--foreground);
+        padding: 6px 10px;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button.primary {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+
+      button:hover {
+        background: var(--accent);
+      }
+
+      button.primary:hover {
+        opacity: 0.88;
+      }
+
+      .status {
+        min-width: 140px;
+        color: var(--muted-foreground);
+        font-size: 12px;
+      }
+
+      code {
+        border-radius: 6px;
+        background: var(--muted);
+        padding: 2px 5px;
+        font-family:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.92em;
+      }
+
+      .page {
+        width: min(1180px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 64px;
+      }
+
+      [contenteditable="true"] {
+        outline: none;
+      }
+
+      [contenteditable="true"]:focus {
+        box-shadow: inset 0 0 0 2px var(--primary);
+      }
+
+      .hero {
+        display: grid;
+        gap: 14px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 28px;
+      }
+
+      .eyebrow {
+        color: var(--muted-foreground);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      h1 {
+        font-size: clamp(34px, 5vw, 58px);
+        letter-spacing: -0.02em;
+      }
+
+      h2 {
+        margin-top: 38px;
+        font-size: 26px;
+      }
+
+      h3 {
+        font-size: 17px;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      .lead {
+        max-width: 780px;
+        color: var(--muted-foreground);
+        font-size: 17px;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 2px 10px;
+        background: var(--card);
+        color: var(--muted-foreground);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--card);
+        padding: 16px;
+      }
+
+      .card.muted {
+        background: var(--muted);
+      }
+
+      .card-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .tag {
+        border-radius: 999px;
+        background: var(--primary);
+        color: var(--primary-foreground);
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .tree {
+        display: grid;
+        gap: 8px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--card);
+        padding: 16px;
+        overflow-x: auto;
+      }
+
+      .branch {
+        display: grid;
+        gap: 8px;
+        margin-left: 18px;
+        padding-left: 14px;
+        border-left: 1px solid var(--border);
+      }
+
+      .node {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--muted);
+        padding: 7px 10px;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .node.route {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+
+      .node.client {
+        border-color: var(--primary);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--border);
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--muted);
+        font-weight: 700;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+      }
+
+      li + li {
+        margin-top: 4px;
+      }
+
+      .note {
+        border-left: 4px solid var(--primary);
+        background: var(--muted);
+        padding: 12px 14px;
+        color: var(--muted-foreground);
+      }
+
+      @media (max-width: 820px) {
+        .grid.two,
+        .grid.three {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar" contenteditable="false">
+      <div class="toolbar-inner">
+        <div class="toolbar-title">Reverseed Component Hierarchy</div>
+        <button type="button" class="primary" data-action="save-draft">초안 저장</button>
+        <button type="button" data-action="save-file">HTML 파일 저장</button>
+        <button type="button" data-action="copy-request">변경요청 복사</button>
+        <button type="button" data-action="reset">초안 초기화</button>
+        <div class="status" id="editor-status">편집 가능</div>
+      </div>
+    </div>
+
+    <main
+      id="editable-document"
+      class="page"
+      contenteditable="true"
+      spellcheck="false"
+      data-filename="component-hierarchy-edited.html"
+      data-storage-key="reverseed-doc-component-hierarchy"
+    >
+      <section class="hero">
+        <div class="eyebrow">Reverseed Component Hierarchy</div>
+        <h1>컴포넌트 계층 구조</h1>
+        <p class="lead">
+          Next.js App Router, 공통 layout, provider, feature component, shadcn UI
+          primitive의 현재 연결 관계를 기준으로 정리한 문서입니다.
+        </p>
+        <div class="meta">
+          <span class="pill">기준 날짜: 2026-05-30</span>
+          <span class="pill">소스: src/app + src/components</span>
+          <span class="pill">편집/저장 가능</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>1. App Router 최상위 구조</h2>
+        <div class="tree">
+          <span class="node route">app/layout.tsx - RootLayout</span>
+          <div class="branch">
+            <span class="node">ThemeScript</span>
+            <span class="node client">Providers</span>
+            <div class="branch">
+              <span class="node client">ThemeProvider</span>
+              <span class="node client">SessionProvider</span>
+              <span class="node client">QueryClientProvider</span>
+              <span class="node client">ReactQueryDevtools</span>
+            </div>
+            <span class="node">AppHeader</span>
+            <div class="branch">
+              <span class="node">ThemeToggle</span>
+              <span class="node">Button</span>
+              <span class="node">Input</span>
+            </div>
+            <span class="node route">children route segment</span>
+            <span class="node">GoogleAnalytics</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. 홈 화면 계층</h2>
+        <div class="tree">
+          <span class="node route">app/page.tsx - Home</span>
+          <div class="branch">
+            <span class="node">StudyDashboard</span>
+            <div class="branch">
+              <span class="node">Tabs / TabsList / TabsTrigger</span>
+              <span class="node">Joined parties aside</span>
+              <div class="branch">
+                <span class="node">Card</span>
+                <span class="node">CardHeader / CardAction / CardTitle</span>
+                <span class="node">ScrollArea</span>
+                <span class="node">PartyListItem</span>
+                <span class="node">Badge</span>
+              </div>
+              <span class="node">Feed section</span>
+              <div class="branch">
+                <span class="node">ActivityCard</span>
+                <div class="branch">
+                  <span class="node">ActivityIcon</span>
+                  <span class="node">Card / CardContent</span>
+                  <span class="node">Badge</span>
+                </div>
+              </div>
+              <span class="node">Right aside</span>
+              <div class="branch">
+                <span class="node">ContributionGrid</span>
+                <span class="node">RecommendedParty</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>3. 파티 상세 화면 계층</h2>
+        <div class="tree">
+          <span class="node route">app/parties/[partySlug]/page.tsx - PartyPage</span>
+          <div class="branch">
+            <span class="node">Party header</span>
+            <div class="branch">
+              <span class="node">Avatar / AvatarFallback</span>
+              <span class="node">Badge</span>
+              <span class="node">Button</span>
+              <span class="node">Tabs / TabsList / TabsTrigger</span>
+            </div>
+            <span class="node">Main content</span>
+            <div class="branch">
+              <span class="node">MarkdownDocument</span>
+              <span class="node">Mini parties Card</span>
+              <span class="node">ActivityCard list</span>
+            </div>
+            <span class="node">Right aside</span>
+            <div class="branch">
+              <span class="node">Repositories Card</span>
+              <span class="node">Online members Card</span>
+              <span class="node">Avatar / AvatarFallback</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>4. GitHub Workspace 컴포넌트</h2>
+        <div class="grid two">
+          <article class="card">
+            <div class="card-title">
+              <h3>GitHubWorkspace</h3>
+              <span class="tag">Feature</span>
+            </div>
+            <p>
+              repository 등록, webhook feed, PR diff review, markdown 기반
+              issue/PR/comment/commit 작성 UI를 담당합니다. 현재 app route에
+              직접 mount된 구조는 아니며 기능 컴포넌트로 존재합니다.
+            </p>
+            <ul>
+              <li>Repository sidebar: <code>Card</code>, <code>Input</code>, <code>Checkbox</code>, <code>Label</code></li>
+              <li>Home feed: webhook event card list</li>
+              <li>PR review: file navigation, split/unified diff, line selection</li>
+              <li>New action panel: <code>Select</code>, <code>Input</code>, <code>MarkdownRichEditor</code></li>
+            </ul>
+          </article>
+          <article class="card">
+            <div class="card-title">
+              <h3>MarkdownRichEditor</h3>
+              <span class="tag">Client</span>
+            </div>
+            <p>
+              Lexical 기반 Markdown editor입니다. textarea preview 방식 대신 입력
+              영역 안에서 Markdown shortcut과 rich text 렌더링을 제공합니다.
+            </p>
+            <ul>
+              <li><code>LexicalComposer</code></li>
+              <li><code>RichTextPlugin</code>, <code>HistoryPlugin</code>, <code>ListPlugin</code>, <code>LinkPlugin</code></li>
+              <li><code>MarkdownShortcutPlugin</code></li>
+              <li><code>MarkdownSyncPlugin</code></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>5. 공통 UI primitive</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>컴포넌트</th>
+              <th>역할</th>
+              <th>주요 사용처</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Button</code></td>
+              <td>shadcn variant/size 기반 명령 버튼</td>
+              <td>AppHeader, PartyPage, GitHubWorkspace</td>
+            </tr>
+            <tr>
+              <td><code>Card</code> family</td>
+              <td>반복 item, 패널, 섹션 컨테이너</td>
+              <td>StudyDashboard, ActivityCard, PartyPage</td>
+            </tr>
+            <tr>
+              <td><code>Tabs</code> family</td>
+              <td>홈/파티 탭 내비게이션</td>
+              <td>StudyDashboard, PartyPage</td>
+            </tr>
+            <tr>
+              <td><code>Input</code>, <code>Label</code>, <code>Checkbox</code>, <code>Select</code></td>
+              <td>폼 입력 primitive</td>
+              <td>AppHeader search, GitHubWorkspace form</td>
+            </tr>
+            <tr>
+              <td><code>Avatar</code>, <code>Badge</code></td>
+              <td>프로필, 상태, visibility, event type 표시</td>
+              <td>PartyPage, ActivityCard, StudyDashboard</td>
+            </tr>
+            <tr>
+              <td><code>ScrollArea</code>, <code>Separator</code></td>
+              <td>스크롤 컨테이너와 구분선</td>
+              <td>Party list, ContributionGrid, future dense panels</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>6. Provider와 클라이언트 경계</h2>
+        <div class="grid three">
+          <article class="card muted">
+            <h3>Server Component</h3>
+            <ul>
+              <li><code>RootLayout</code></li>
+              <li><code>Home</code></li>
+              <li><code>PartyPage</code></li>
+              <li><code>AppHeader</code></li>
+            </ul>
+          </article>
+          <article class="card muted">
+            <h3>Client Provider</h3>
+            <ul>
+              <li><code>Providers</code></li>
+              <li><code>ThemeProvider</code></li>
+              <li><code>SessionProvider</code></li>
+              <li><code>QueryClientProvider</code></li>
+            </ul>
+          </article>
+          <article class="card muted">
+            <h3>Client Interaction</h3>
+            <ul>
+              <li><code>ThemeToggle</code></li>
+              <li><code>GitHubWorkspace</code></li>
+              <li><code>MarkdownRichEditor</code></li>
+              <li><code>StackStatus</code></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>7. 변경 제안 포인트</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>Route별 feature folder</h3>
+            <p>
+              현재 <code>study</code>, <code>github</code>, <code>theme</code>,
+              <code>layout</code>, <code>ui</code>로 분리되어 있습니다. 파티
+              상세 기능이 커지면 <code>components/party</code> 또는
+              <code>features/party</code>로 이동해도 됩니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3>GitHubWorkspace mount 위치</h3>
+            <p>
+              GitHub PR review UI는 기능 컴포넌트로 구현되어 있으나 현재 홈/파티
+              route에 직접 연결된 화면은 아닙니다. 파티 상세의 Pull requests 탭
+              아래로 연결하는 것이 자연스럽습니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Header active state</h3>
+            <p>
+              현재 공통 상단바는 정적 링크입니다. 현재 route를 반영한 active
+              state가 필요하면 client navigation component로 분리할 수 있습니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3>UI primitive 유지</h3>
+            <p>
+              폼, 버튼, 탭, 카드, 아바타는 shadcn primitive를 유지하고 feature
+              component는 domain action과 state orchestration만 담당하는 방향이
+              좋습니다.
+            </p>
+          </article>
+        </div>
+        <p class="note">
+          이 문서를 수정한 뒤 "변경요청 복사"를 누르면 현재 문서 내용을 기반으로
+          Codex에게 반영 요청할 수 있는 텍스트가 클립보드에 저장됩니다.
+        </p>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const editable = document.getElementById("editable-document");
+        const status = document.getElementById("editor-status");
+        const storageKey = editable.dataset.storageKey;
+        const fileName = editable.dataset.filename;
+        const originalHtml = editable.innerHTML;
+
+        function setStatus(message) {
+          status.textContent = message;
+          window.setTimeout(() => {
+            if (status.textContent === message) {
+              status.textContent = "편집 가능";
+            }
+          }, 2500);
+        }
+
+        function buildHtml() {
+          return "<!doctype html>\n" + document.documentElement.outerHTML;
+        }
+
+        function downloadHtml(html) {
+          const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const anchor = document.createElement("a");
+          anchor.href = url;
+          anchor.download = fileName;
+          anchor.click();
+          URL.revokeObjectURL(url);
+        }
+
+        async function saveFile() {
+          const html = buildHtml();
+          if ("showSaveFilePicker" in window) {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: fileName,
+              types: [
+                {
+                  description: "HTML document",
+                  accept: { "text/html": [".html"] },
+                },
+              ],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(html);
+            await writable.close();
+            setStatus("HTML 저장 완료");
+            return;
+          }
+
+          downloadHtml(html);
+          setStatus("HTML 다운로드 완료");
+        }
+
+        function saveDraft() {
+          localStorage.setItem(storageKey, editable.innerHTML);
+          setStatus("초안 저장 완료");
+        }
+
+        async function copyRequest() {
+          const request = [
+            "다음 컴포넌트 계층 수정안을 Reverseed 코드에 반영해줘.",
+            "",
+            `문서: ${document.title}`,
+            "",
+            editable.innerText.trim(),
+          ].join("\n");
+          await navigator.clipboard.writeText(request);
+          setStatus("변경요청 복사 완료");
+        }
+
+        function resetDraft() {
+          if (!window.confirm("저장된 초안을 지우고 원본 문서로 되돌릴까요?")) {
+            return;
+          }
+
+          localStorage.removeItem(storageKey);
+          editable.innerHTML = originalHtml;
+          setStatus("초안 초기화 완료");
+        }
+
+        const draft = localStorage.getItem(storageKey);
+        if (draft) {
+          editable.innerHTML = draft;
+          setStatus("저장된 초안 불러옴");
+        }
+
+        document.addEventListener("click", async (event) => {
+          const button = event.target.closest("button[data-action]");
+          if (!button) {
+            return;
+          }
+
+          try {
+            if (button.dataset.action === "save-draft") {
+              saveDraft();
+            } else if (button.dataset.action === "save-file") {
+              await saveFile();
+            } else if (button.dataset.action === "copy-request") {
+              await copyRequest();
+            } else if (button.dataset.action === "reset") {
+              resetDraft();
+            }
+          } catch (error) {
+            console.error(error);
+            setStatus("작업 실패");
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
